@@ -332,6 +332,57 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Handle hostel bed allocation if bedId is provided
+    if (body.isBoarding && body.bedId) {
+      try {
+        // Check if bed is still available
+        const bed = await prisma.hostelBed.findUnique({
+          where: { id: body.bedId },
+          include: {
+            allocation: {
+              where: { isActive: true },
+            },
+          },
+        });
+
+        if (!bed) {
+          return NextResponse.json(
+            { error: 'Selected bed not found' },
+            { status: 400 }
+          );
+        }
+
+        if (bed.allocation) {
+          return NextResponse.json(
+            { error: 'Selected bed is already occupied' },
+            { status: 400 }
+          );
+        }
+
+        // Create hostel allocation
+        await prisma.hostelAllocation.create({
+          data: {
+            studentId: student.id,
+            bedId: body.bedId,
+            checkInDate: new Date(),
+            isActive: true,
+            allocatedBy: session.user.id,
+            notes: `Initial allocation during student registration`,
+          },
+        });
+
+        // Mark bed as unavailable
+        await prisma.hostelBed.update({
+          where: { id: body.bedId },
+          data: { isAvailable: false },
+        });
+      } catch (error: any) {
+        console.error('Error allocating bed:', error);
+        // Don't fail student creation if bed allocation fails
+        // Just log the error
+      }
+    }
+
     return NextResponse.json(student, { status: 201 });
   } catch (error) {
     console.error('Error creating student:', error);

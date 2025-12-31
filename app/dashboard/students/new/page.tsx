@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -103,6 +103,7 @@ export default function NewStudentPage() {
     // Accommodation
     isBoarding: false,
     roomNumber: '',
+    bedId: '',
 
     // Photo
     photo: '',
@@ -133,6 +134,10 @@ export default function NewStudentPage() {
   const [photoUploading, setPhotoUploading] = useState(false);
   const [fileUploading, setFileUploading] = useState(false);
   const [paymentProofUploading, setPaymentProofUploading] = useState(false);
+  
+  // Hostel room selection state
+  const [availableBeds, setAvailableBeds] = useState<any[]>([]);
+  const [loadingBeds, setLoadingBeds] = useState(false);
 
   // Computed balance
   const computedBalance = formData.totalFees && formData.initialDepositAmount 
@@ -321,6 +326,30 @@ export default function NewStudentPage() {
       }
     });
   };
+
+  // Fetch available beds when boarding is selected
+  useEffect(() => {
+    const fetchAvailableBeds = async () => {
+      if (formData.isBoarding && formData.gender) {
+        setLoadingBeds(true);
+        try {
+          const response = await fetch(`/api/hostels/rooms?gender=${formData.gender}`);
+          const data = await response.json();
+          if (response.ok) {
+            setAvailableBeds(data.rooms.filter((bed: any) => bed.isAvailable));
+          }
+        } catch (error) {
+          console.error('Error fetching beds:', error);
+        } finally {
+          setLoadingBeds(false);
+        }
+      } else {
+        setAvailableBeds([]);
+        setFormData(prev => ({ ...prev, bedId: '' }));
+      }
+    };
+    fetchAvailableBeds();
+  }, [formData.isBoarding, formData.gender]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -1692,20 +1721,47 @@ export default function NewStudentPage() {
 
                 {formData.isBoarding && (
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Room Number / Allocation
+                        Select Room & Bed <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        name="roomNumber"
-                        value={formData.roomNumber}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                        placeholder="e.g., Block A, Room 12"
-                      />
+                      {loadingBeds ? (
+                        <div className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg bg-slate-50 flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-slate-600">Loading available beds...</span>
+                        </div>
+                      ) : availableBeds.length === 0 ? (
+                        <div className="w-full px-4 py-2.5 border-2 border-amber-300 rounded-lg bg-amber-50">
+                          <p className="text-amber-800 text-sm">
+                            {!formData.gender 
+                              ? 'Please select gender first to see available beds'
+                              : 'No available beds found for this gender. Please contact hostel manager.'}
+                          </p>
+                        </div>
+                      ) : (
+                        <select
+                          name="bedId"
+                          value={formData.bedId}
+                          onChange={handleInputChange}
+                          required={formData.isBoarding}
+                          className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        >
+                          <option value="">Select a bed...</option>
+                          {availableBeds.map((bed) => (
+                            <option key={bed.bedId} value={bed.bedId}>
+                              {bed.displayName} {bed.isAvailable ? '✓ Available' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      {formData.bedId && (
+                        <p className="text-sm text-emerald-600 mt-2 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+                          Bed selected successfully
+                        </p>
+                      )}
                       <p className="text-sm text-slate-500 mt-1">
-                        Room allocation can be updated later by the hostel manager
+                        Select an available bed for this student. Room allocation can be updated later by the hostel manager.
                       </p>
                     </div>
                   </div>
