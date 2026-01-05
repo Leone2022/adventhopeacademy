@@ -24,9 +24,12 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const where: any = {
-      schoolId: session.user.schoolId,
-    };
+    const where: any = {};
+    
+    // Only filter by schoolId if user has one (super admins see all)
+    if (session.user.schoolId) {
+      where.schoolId = session.user.schoolId;
+    }
 
     if (status && status !== 'ALL') {
       where.status = status;
