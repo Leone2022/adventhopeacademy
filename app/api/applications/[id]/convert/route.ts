@@ -106,10 +106,9 @@ export async function POST(
         
         // Photo and documents
         photo: application.photo,
-        birthCertificate: application.birthCertificate,
+        documents: application.documents || undefined,
         
-        // Guardian and emergency information (store as JSON)
-        guardianInfo: application.guardianInfo,
+        // Emergency information (store as JSON)
         emergencyContacts: application.emergencyContacts || undefined,
         
         // Accommodation
