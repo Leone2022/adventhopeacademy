@@ -102,6 +102,20 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Announcement Banner */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-2 text-center">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3">
+          <span className="animate-bounce text-xl">📚</span>
+          <p className="text-sm sm:text-base font-medium">
+            <span className="hidden sm:inline">Admissions Open for 2026! </span>
+            <Link href="/apply" className="underline font-bold hover:text-yellow-300 transition-colors">
+              Register Your Child Now →
+            </Link>
+          </p>
+          <span className="animate-bounce text-xl">🎓</span>
+        </div>
+      </div>
+
       {/* Top Bar */}
       <div className="bg-slate-900 text-white py-2.5 text-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,9 +273,13 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   href="/apply"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                  className="relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 animate-pulse"
                 >
-                  Register Now
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-yellow-500"></span>
+                  </span>
+                  🎓 Register Now - No Login Required!
                   <Send className="h-5 w-5" />
                 </Link>
                 <Link
@@ -735,6 +753,17 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Register Button (Mobile) */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <Link
+          href="/apply"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold shadow-2xl animate-bounce hover:from-emerald-600 hover:to-teal-600 transition-all"
+        >
+          <span>Register Now</span>
+          <Send className="h-4 w-4" />
+        </Link>
+      </div>
     </main>
   );
 }
