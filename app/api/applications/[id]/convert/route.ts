@@ -24,7 +24,7 @@ export async function POST(
     // Get the application
     const application = await prisma.application.findUnique({
       where: { id: params.id },
-    });
+    }) as any;
 
     if (!application) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
