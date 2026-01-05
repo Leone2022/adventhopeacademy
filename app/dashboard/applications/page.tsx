@@ -126,9 +126,11 @@ export default function ApplicationsPage() {
         setTotalPages(data.pagination.totalPages);
         setTotal(data.pagination.total);
       } else {
+        console.error('API Error:', data);
         setError(data.error || 'Failed to fetch applications');
       }
     } catch (err) {
+      console.error('Fetch Error:', err);
       setError('Failed to fetch applications');
     } finally {
       setLoading(false);
