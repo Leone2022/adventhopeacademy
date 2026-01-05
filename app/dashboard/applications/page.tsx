@@ -507,6 +507,47 @@ export default function ApplicationsPage() {
     };
   };
 
+  const exportToExcel = () => {
+    // Create CSV content
+    const headers = ['Application #', 'First Name', 'Last Name', 'Gender', 'Date of Birth', 'Email', 'Phone', 'Applying For', 'Curriculum', 'Guardian Name', 'Guardian Phone', 'Status', 'Submitted Date'];
+    
+    const rows = applications.map(app => {
+      const guardian = app.guardianInfo as Guardian;
+      return [
+        app.applicationNumber,
+        app.firstName,
+        app.lastName,
+        app.gender,
+        new Date(app.dateOfBirth).toLocaleDateString('en-GB'),
+        app.email || '',
+        app.phone || '',
+        app.applyingForClass.replace('_', ' '),
+        app.curriculum,
+        guardian?.name || '',
+        guardian?.phone || '',
+        app.status.replace('_', ' '),
+        app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') : formatDate(app.createdAt)
+      ];
+    });
+
+    // Convert to CSV format
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `applications_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-GB', {
       day: 'numeric',
@@ -565,14 +606,23 @@ export default function ApplicationsPage() {
             </select>
           </div>
 
-          {/* Export Button */}
-          <button
-            onClick={exportToPDF}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            Export PDF
-          </button>
+          {/* Export Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={exportToExcel}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              Export Excel
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              Export PDF
+            </button>
+          </div>
         </div>
       </div>
 
