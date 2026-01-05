@@ -797,6 +797,7 @@ model Application {
   gender               Gender
   nationalId           String?
   birthCertNumber      String?
+  religion             String?
   email                String?
   phone                String?
   address              String?
@@ -804,7 +805,21 @@ model Application {
   applyingForClass     String
   previousSchool       String?
   previousGrade        String?
+  transferReason       String?
+  formerPrimarySchool  String?
+  formerPrimarySchoolAddress String?
+  formerPrimarySchoolContact String?
+  formerPrimaryGrade   String?
+  bloodGroup           String?
+  allergies            String?
+  medicalConditions    String?
+  specialNeeds         String?
+  isBoarding           Boolean           @default(false)
+  recreationalActivities Json?
+  specialTalents       String?
+  clubsInterests       String?
   guardianInfo         Json
+  emergencyContacts    Json?
   documents            Json?
   birthCertificate     String?
   previousReports      String?
