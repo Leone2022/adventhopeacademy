@@ -157,13 +157,13 @@ export default function Home() {
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-14 h-14 rounded-xl shadow-lg ring-2 ring-blue-100 overflow-hidden">
+              <div className="relative w-16 h-16">
                 <Image 
                   src="/uploads/logo.png" 
                   alt="Advent Hope Academy Logo" 
-                  width={56} 
-                  height={56}
-                  className="object-cover"
+                  width={64} 
+                  height={64}
+                  className="object-contain"
                 />
               </div>
               <div>
