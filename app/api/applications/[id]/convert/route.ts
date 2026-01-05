@@ -98,7 +98,6 @@ export async function POST(
         bloodGroup: application.bloodGroup,
         allergies: application.allergies,
         medicalConditions: application.medicalConditions,
-        medicalRecords: application.medicalRecords,
         
         // Activities & Interests
         specialTalents: application.specialTalents,
