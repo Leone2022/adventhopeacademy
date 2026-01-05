@@ -59,8 +59,10 @@ export async function POST(
     // Parse guardian info
     const guardianInfo = application.guardianInfo as any;
     const documents = application.documents as any;
+    const emergencyContacts = application.emergencyContacts as any;
+    const recreationalActivities = application.recreationalActivities as any;
 
-    // Create student record
+    // Create student record with ALL data from application
     const student = await prisma.student.create({
       data: {
         schoolId: application.schoolId,
@@ -74,6 +76,7 @@ export async function POST(
         gender: application.gender,
         nationalId: application.nationalId,
         birthCertNumber: application.birthCertNumber,
+        religion: application.religion,
         
         // Contact Information
         email: application.email,
@@ -86,15 +89,32 @@ export async function POST(
         previousSchool: application.previousSchool,
         previousGrade: application.previousGrade,
         
+        // Former Primary School
+        formerPrimarySchool: application.formerPrimarySchool,
+        formerPrimarySchoolAddress: application.formerPrimarySchoolAddress,
+        formerPrimarySchoolContact: application.formerPrimarySchoolContact,
+        
+        // Medical Information
+        bloodGroup: application.bloodGroup,
+        allergies: application.allergies,
+        medicalConditions: application.medicalConditions,
+        medicalRecords: application.medicalRecords,
+        
+        // Activities & Interests
+        specialTalents: application.specialTalents,
+        clubsInterests: application.clubsInterests,
+        recreationalActivities: application.recreationalActivities,
+        
         // Photo and documents
         photo: application.photo,
         birthCertificate: application.birthCertificate,
         
-        // Guardian information (store as JSON)
+        // Guardian and emergency information (store as JSON)
         guardianInfo: application.guardianInfo,
+        emergencyContacts: application.emergencyContacts,
         
-        // Medical info if available in documents
-        medicalRecords: application.medicalRecords,
+        // Accommodation
+        isBoarding: application.isBoarding,
         
         // Other
         admissionDate: new Date(),

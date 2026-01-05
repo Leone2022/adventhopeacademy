@@ -62,7 +62,10 @@ export async function POST(request: NextRequest) {
       occupation: body.parentOccupation || null,
     };
 
-    // Create application
+    // Prepare emergency contacts
+    const emergencyContacts = body.emergencyContacts || [];
+
+    // Create application with ALL fields
     const application = await prisma.application.create({
       data: {
         applicationNumber,
@@ -76,12 +79,30 @@ export async function POST(request: NextRequest) {
         gender: body.gender,
         nationalId: body.nationalId || null,
         birthCertNumber: body.birthCertNumber || null,
+        religion: body.religion || null,
         
         // Academic info
         curriculum: body.curriculum,
         applyingForClass: body.applyingForClass || body.gradeApplyingFor,
         previousSchool: body.previousSchool || null,
         previousGrade: body.previousGrade || null,
+        transferReason: body.transferReason || null,
+        
+        // Former Primary School
+        formerPrimarySchool: body.formerPrimarySchool || null,
+        formerPrimarySchoolAddress: body.formerPrimarySchoolAddress || null,
+        formerPrimarySchoolContact: body.formerPrimarySchoolContact || null,
+        formerPrimaryGrade: body.formerPrimaryGrade || null,
+        
+        // Medical info
+        bloodGroup: body.bloodGroup || null,
+        allergies: body.allergies || null,
+        medicalConditions: body.medicalConditions || null,
+        
+        // Activities & Interests
+        recreationalActivities: body.recreationalActivities || null,
+        specialTalents: body.specialTalents || null,
+        clubsInterests: body.clubsInterests || null,
         
         // Contact info
         address: body.address || null,
@@ -91,7 +112,20 @@ export async function POST(request: NextRequest) {
         // Guardian info (as JSON)
         guardianInfo,
         
+        // Emergency contacts
+        emergencyContacts: emergencyContacts.length > 0 ? emergencyContacts : null,
+        
+        // Documents
+        photo: body.photo || null,
+        birthCertificate: body.birthCertificate || null,
+        documents: body.documents || null,
+        
+        // Accommodation
+        isBoarding: body.isBoarding || false,
+        specialNeeds: body.specialNeeds || null,
+        
         status: 'PENDING',
+        submittedAt: new Date(),
       },
     });
 

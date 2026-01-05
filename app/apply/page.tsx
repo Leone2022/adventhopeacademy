@@ -41,6 +41,9 @@ export default function ApplyPage() {
     middleName: '',
     dateOfBirth: '',
     gender: 'MALE',
+    nationalId: '',
+    birthCertNumber: '',
+    religion: '',
     email: '',
     phone: '',
     address: '',
@@ -50,6 +53,13 @@ export default function ApplyPage() {
     gradeApplyingFor: '',
     previousSchool: '',
     previousGrade: '',
+    transferReason: '',
+    
+    // Former Primary School
+    formerPrimarySchool: '',
+    formerPrimarySchoolAddress: '',
+    formerPrimarySchoolContact: '',
+    formerPrimaryGrade: '',
     
     // Parent Information
     parentName: '',
@@ -57,11 +67,16 @@ export default function ApplyPage() {
     parentPhone: '',
     parentRelationship: 'Parent',
     parentOccupation: '',
+    parentEmployer: '',
     
     // Medical Information
     bloodGroup: '',
     allergies: '',
     medicalConditions: '',
+    
+    // Activities
+    specialTalents: '',
+    clubsInterests: '',
     
     // Additional
     isBoarding: false,
@@ -78,7 +93,7 @@ export default function ApplyPage() {
     { number: 1, title: 'Student Info', icon: User },
     { number: 2, title: 'Academics', icon: GraduationCap },
     { number: 3, title: 'Parent/Guardian', icon: Users },
-    { number: 4, title: 'Medical', icon: Heart },
+    { number: 4, title: 'Medical & Activities', icon: Heart },
     { number: 5, title: 'Review', icon: FileText },
   ];
 
@@ -417,6 +432,48 @@ export default function ApplyPage() {
                       />
                     </div>
                   </div>
+
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        National ID
+                      </label>
+                      <input
+                        type="text"
+                        name="nationalId"
+                        value={formData.nationalId}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        placeholder="XX-XXXXXXX X XX"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Birth Certificate Number
+                      </label>
+                      <input
+                        type="text"
+                        name="birthCertNumber"
+                        value={formData.birthCertNumber}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        placeholder="Birth cert number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Religion
+                      </label>
+                      <input
+                        type="text"
+                        name="religion"
+                        value={formData.religion}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        placeholder="e.g., Christianity"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -486,6 +543,51 @@ export default function ApplyPage() {
                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         placeholder="e.g., Grade 6, Form 2"
                       />
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="font-semibold text-slate-800 mb-4">Former Primary School (Optional)</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          School Name
+                        </label>
+                        <input
+                          type="text"
+                          name="formerPrimarySchool"
+                          value={formData.formerPrimarySchool}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          placeholder="Primary school name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Contact Number
+                        </label>
+                        <input
+                          type="text"
+                          name="formerPrimarySchoolContact"
+                          value={formData.formerPrimarySchoolContact}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          placeholder="School contact"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          School Address
+                        </label>
+                        <input
+                          type="text"
+                          name="formerPrimarySchoolAddress"
+                          value={formData.formerPrimarySchoolAddress}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          placeholder="School address"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -589,6 +691,19 @@ export default function ApplyPage() {
                         onChange={handleInputChange}
                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         placeholder="e.g., Teacher, Engineer"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Employer
+                      </label>
+                      <input
+                        type="text"
+                        name="parentEmployer"
+                        value={formData.parentEmployer}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        placeholder="Company/Organization name"
                       />
                     </div>
                   </div>
@@ -706,6 +821,38 @@ export default function ApplyPage() {
                       className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
                       placeholder="Any special educational needs or accommodations required"
                     />
+                  </div>
+
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="font-semibold text-slate-800 mb-4">Activities & Interests (Optional)</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Special Talents
+                        </label>
+                        <textarea
+                          name="specialTalents"
+                          value={formData.specialTalents}
+                          onChange={handleInputChange}
+                          rows={2}
+                          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                          placeholder="e.g., Singing, Drawing, Public Speaking"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Clubs & Interests
+                        </label>
+                        <textarea
+                          name="clubsInterests"
+                          value={formData.clubsInterests}
+                          onChange={handleInputChange}
+                          rows={2}
+                          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                          placeholder="e.g., Science Club, Chess, Sports"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
