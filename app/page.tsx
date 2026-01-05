@@ -258,21 +258,19 @@ export default function Home() {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
+                  href="/apply"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                >
+                  Register Now
+                  <Send className="h-5 w-5" />
+                </Link>
+                <Link
                   href="/auth/login"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
                 >
                   Portal Access
                   <ArrowRight className="h-5 w-5" />
                 </Link>
-                <a
-                  href="https://adventhope.ac.zw"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent text-white border-2 border-white/30 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm"
-                >
-                  Apply Now
-                  <Send className="h-5 w-5" />
-                </a>
               </div>
 
               {/* Trust Indicators */}
