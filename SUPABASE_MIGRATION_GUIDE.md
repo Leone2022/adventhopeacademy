@@ -52,7 +52,7 @@ pg_dump -U postgres -h localhost -d adventhope_sms -f C:\backups\adventhope_sms_
    - **Organization**: Create new or select existing
    - **Project name**: `advent-hope-academy-sms`
    - **Database Password**: Create a STRONG password (save this!)
-   - **Region**: Choose closest to Uganda → **Frankfurt (eu-central-1)** or **Mumbai (ap-south-1)**
+   - **Region**: Choose **Frankfurt (eu-central-1)** - best for Zimbabwe/Southern Africa
 3. Click **Create new project**
 4. **Wait 2-3 minutes** for the database to provision
 

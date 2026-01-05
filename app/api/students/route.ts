@@ -146,22 +146,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate student number
-    const year = new Date().getFullYear();
-    const lastStudent = await prisma.student.findFirst({
-      where: {
-        schoolId,
-        studentNumber: { startsWith: `AHA${year}` },
-      },
-      orderBy: { studentNumber: 'desc' },
-    });
+    // Use manually entered student number or generate one if not provided
+    let studentNumber = body.studentNumber?.trim();
+    
+    if (!studentNumber) {
+      // Auto-generate if not provided (fallback)
+      const year = new Date().getFullYear();
+      const lastStudent = await prisma.student.findFirst({
+        where: {
+          schoolId,
+          studentNumber: { startsWith: `AHA${year}` },
+        },
+        orderBy: { studentNumber: 'desc' },
+      });
 
-    let sequence = 1;
-    if (lastStudent) {
-      const lastSeq = parseInt(lastStudent.studentNumber.slice(-4));
-      sequence = lastSeq + 1;
+      let sequence = 1;
+      if (lastStudent) {
+        const lastSeq = parseInt(lastStudent.studentNumber.slice(-4));
+        sequence = lastSeq + 1;
+      }
+      studentNumber = `AHA${year}${sequence.toString().padStart(4, '0')}`;
+    } else {
+      // Check if student number already exists
+      const existingStudent = await prisma.student.findFirst({
+        where: {
+          schoolId,
+          studentNumber: studentNumber,
+        },
+      });
+      
+      if (existingStudent) {
+        return NextResponse.json(
+          { error: `Student number "${studentNumber}" already exists. Please use a different registration number.` },
+          { status: 400 }
+        );
+      }
     }
-    const studentNumber = `AHA${year}${sequence.toString().padStart(4, '0')}`;
 
     // Create the student
     const student = await prisma.student.create({

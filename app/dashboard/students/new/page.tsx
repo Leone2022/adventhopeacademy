@@ -70,6 +70,9 @@ export default function NewStudentPage() {
 
   // Form state
   const [formData, setFormData] = useState({
+    // Student Registration Number (Manual Entry)
+    studentNumber: '',
+    
     // Personal Information
     firstName: '',
     lastName: '',
@@ -418,6 +421,10 @@ export default function NewStudentPage() {
     
     // Validation for each step
     if (currentStep === 1) {
+      if (!formData.studentNumber) {
+        setError('Please enter the student registration number');
+        return;
+      }
       if (!formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.gender) {
         setError('Please fill in all required personal information');
         return;
@@ -563,12 +570,13 @@ export default function NewStudentPage() {
               onClick={() => {
                 setCurrentStep(1);
                 setFormData({
+                  studentNumber: '',
                   firstName: '', lastName: '', middleName: '', dateOfBirth: '', gender: 'MALE',
                   nationalId: '', birthCertNumber: '', religion: '', email: '', phone: '', address: '',
                   curriculum: 'ZIMSEC', grade: '', term: '', academicYear: new Date().getFullYear().toString(),
                   admissionDate: new Date().toISOString().split('T')[0], previousSchool: '', previousGrade: '',
                   transferReason: '', bloodGroup: '', allergies: '', medicalConditions: '', isBoarding: false,
-                  roomNumber: '', photo: '', formerPrimarySchool: '', formerPrimarySchoolAddress: '',
+                  roomNumber: '', bedId: '', photo: '', formerPrimarySchool: '', formerPrimarySchoolAddress: '',
                   formerPrimarySchoolContact: '', formerPrimaryGrade: '', recreationalActivities: [],
                   specialTalents: '', clubsInterests: '',
                   totalFees: '', initialDepositPercentage: '20', initialDepositAmount: '',
@@ -620,6 +628,24 @@ export default function NewStudentPage() {
             <div className="p-6 lg:p-8 min-h-[400px]">{currentStep === 1 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-slate-800">Personal Information</h3>
+                
+                {/* Student Registration Number - Manual Entry */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                  <label className="block text-sm font-medium text-blue-800 mb-2">
+                    Student Registration Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="studentNumber"
+                    value={formData.studentNumber}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg font-mono font-semibold bg-white"
+                    placeholder="Enter school's registration number (e.g., AHA2026001)"
+                  />
+                  <p className="text-xs text-blue-600 mt-2">Enter the student registration number assigned by the school</p>
+                </div>
+                
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
