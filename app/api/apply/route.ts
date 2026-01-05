@@ -98,11 +98,15 @@ export async function POST(request: NextRequest) {
         bloodGroup: body.bloodGroup || null,
         allergies: body.allergies || null,
         medicalConditions: body.medicalConditions || null,
+        specialNeeds: body.specialNeeds || null,
         
         // Activities & Interests
         recreationalActivities: body.recreationalActivities || null,
         specialTalents: body.specialTalents || null,
         clubsInterests: body.clubsInterests || null,
+        
+        // Boarding
+        isBoarding: body.isBoarding || false,
         
         // Contact info
         address: body.address || null,
