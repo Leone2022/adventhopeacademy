@@ -124,13 +124,9 @@ export async function POST(request: NextRequest) {
         birthCertificate: body.birthCertificate || null,
         documents: body.documents || null,
         
-        // Accommodation
-        isBoarding: body.isBoarding || false,
-        specialNeeds: body.specialNeeds || null,
-        
         status: 'PENDING',
         submittedAt: new Date(),
-      },
+      } as any,
     });
 
     // TODO: Send confirmation email to parent
