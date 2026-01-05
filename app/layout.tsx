@@ -8,6 +8,11 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Advent Hope Academy - School Management System",
   description: "Comprehensive School Management System for Advent Hope Academy",
+  icons: {
+    icon: '/uploads/logo.png',
+    shortcut: '/uploads/logo.png',
+    apple: '/uploads/logo.png',
+  },
 }
 
 export default function RootLayout({
