@@ -161,6 +161,33 @@ export default function ApplicationsPage() {
     }
   };
 
+  const convertToStudent = async (id: string) => {
+    if (!confirm('Convert this application to a student record? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setUpdating(true);
+      const response = await fetch(`/api/applications/${id}/convert`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Success! Student enrolled with number: ${data.student.studentNumber}`);
+        fetchApplications();
+        setShowModal(false);
+      } else {
+        alert(data.error || 'Failed to convert application');
+      }
+    } catch (err) {
+      alert('Failed to convert application');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const exportToPDF = () => {
     if (!printRef.current) return;
     
@@ -948,6 +975,16 @@ export default function ApplicationsPage() {
                         Reject
                       </button>
                     </>
+                  )}
+                  {selectedApplication.status === 'APPROVED' && !selectedApplication.id.includes('converted') && (
+                    <button
+                      onClick={() => convertToStudent(selectedApplication.id)}
+                      disabled={updating}
+                      className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-semibold"
+                    >
+                      <GraduationCap className="h-5 w-5" />
+                      {updating ? 'Converting...' : 'Convert to Student & Enroll'}
+                    </button>
                   )}
                 </div>
               </div>
