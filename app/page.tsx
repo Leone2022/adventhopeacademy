@@ -157,8 +157,14 @@ export default function Home() {
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-14 h-14 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-blue-100">
-                <GraduationCap className="h-8 w-8 text-white" />
+              <div className="relative w-14 h-14 rounded-xl shadow-lg ring-2 ring-blue-100 overflow-hidden">
+                <Image 
+                  src="/uploads/logo.png" 
+                  alt="Advent Hope Academy Logo" 
+                  width={56} 
+                  height={56}
+                  className="object-cover"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-800 leading-tight">Advent Hope Academy</h1>
