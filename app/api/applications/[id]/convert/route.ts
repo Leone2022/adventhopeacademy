@@ -117,7 +117,6 @@ export async function POST(
         // Other
         admissionDate: new Date(),
         status: 'ACTIVE',
-        isActive: true,
       },
     });
 
