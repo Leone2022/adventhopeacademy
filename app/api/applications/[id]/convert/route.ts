@@ -102,7 +102,7 @@ export async function POST(
         // Activities & Interests
         specialTalents: application.specialTalents,
         clubsInterests: application.clubsInterests,
-        recreationalActivities: application.recreationalActivities,
+        recreationalActivities: application.recreationalActivities || undefined,
         
         // Photo and documents
         photo: application.photo,
@@ -110,7 +110,7 @@ export async function POST(
         
         // Guardian and emergency information (store as JSON)
         guardianInfo: application.guardianInfo,
-        emergencyContacts: application.emergencyContacts,
+        emergencyContacts: application.emergencyContacts || undefined,
         
         // Accommodation
         isBoarding: application.isBoarding,
