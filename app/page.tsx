@@ -100,8 +100,42 @@ const footerLinks = {
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Structured Data for SEO (JSON-LD)
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Advent Hope Academy",
+    "alternateName": "AHA",
+    "url": "https://adventhopeacademy.com",
+    "logo": "https://adventhopeacademy.com/uploads/logo.png",
+    "description": "Premier Christian educational institution in Zimbabwe offering Cambridge and ZIMSEC curricula with comprehensive school management system.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "ZW",
+      "addressLocality": "Zimbabwe"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+263773102003",
+      "email": "info@adventhope.ac.zw",
+      "contactType": "Admissions",
+      "availableLanguage": ["English"]
+    },
+    "sameAs": [
+      "https://facebook.com/adventhopeacademy",
+      "https://twitter.com/adventhopeacademy",
+      "https://linkedin.com/company/adventhopeacademy"
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-white">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       {/* Announcement Banner */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-2 text-center">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3">
