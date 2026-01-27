@@ -6,8 +6,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'curriculum', 'gradeApplyingFor'];
+    // Validate required fields (national ID required for finance/boarding linkage)
+    const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'curriculum', 'gradeApplying', 'nationalId'];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         
         // Academic info
         curriculum: body.curriculum,
-        applyingForClass: body.applyingForClass || body.gradeApplyingFor,
+        applyingForClass: body.applyingForClass || body.gradeApplying,
         previousSchool: body.previousSchool || null,
         previousGrade: body.previousGrade || null,
         transferReason: body.transferReason || null,
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       ...application,
-      gradeApplyingFor: application.applyingForClass,
+      gradeApplying: application.applyingForClass,
     });
   } catch (error) {
     console.error('Error fetching application:', error);

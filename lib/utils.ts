@@ -42,3 +42,9 @@ export function generateReceiptNumber(): string {
   return `RCP-${year}-${random}`
 }
 
+export function generateParentApplicationNumber(): string {
+  const year = new Date().getFullYear()
+  const random = Math.floor(100000 + Math.random() * 900000)
+  return `PAR${year}${random}`
+}
+

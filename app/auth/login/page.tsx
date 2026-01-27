@@ -64,7 +64,7 @@ export default function LoginPage() {
       {/* Left Panel - Branding (40%) */}
       <div className="hidden lg:flex lg:w-[40%] relative overflow-hidden">
         {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1e40af] via-[#1e3a8a] to-[#0d9488]"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3b82f6] via-[#2563eb] to-[#0d9488]"></div>
         
         {/* Subtle Pattern Overlay */}
         <div className="absolute inset-0 opacity-10">
@@ -165,7 +165,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#1e40af] to-[#0d9488] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#3b82f6] to-[#0d9488] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
               <span className="text-3xl font-bold text-white">AH</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-800">Advent Hope Academy</h1>
@@ -209,7 +209,7 @@ export default function LoginPage() {
                     type="email"
                     autoComplete="email"
                     required
-                    className="block w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1e40af] focus:border-transparent transition-all duration-200 bg-white"
+                    className="block w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent transition-all duration-200 bg-white"
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -232,7 +232,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
-                    className="block w-full pl-12 pr-12 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1e40af] focus:border-transparent transition-all duration-200 bg-white"
+                    className="block w-full pl-12 pr-12 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent transition-all duration-200 bg-white"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -258,13 +258,13 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-[#1e40af] border-slate-300 rounded focus:ring-[#1e40af] focus:ring-offset-0 cursor-pointer"
+                    className="w-4 h-4 text-[#3b82f6] border-slate-300 rounded focus:ring-[#3b82f6] focus:ring-offset-0 cursor-pointer"
                   />
                   <span className="ml-2 text-sm text-slate-600">Remember me</span>
                 </label>
                 <Link 
                   href="/auth/forgot-password" 
-                  className="text-sm text-[#1e40af] hover:text-[#1e3a8a] font-medium transition-colors"
+                  className="text-sm text-[#3b82f6] hover:text-[#2563eb] font-medium transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -274,7 +274,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 bg-[#1e40af] text-white rounded-xl font-semibold hover:bg-[#1e3a8a] focus:outline-none focus:ring-2 focus:ring-[#1e40af] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-[0.98]"
+                className="w-full py-3.5 px-4 bg-[#3b82f6] text-white rounded-xl font-semibold hover:bg-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 hover:shadow-xl active:scale-[0.98]"
               >
                 {loading ? (
                   <>
@@ -303,7 +303,7 @@ export default function LoginPage() {
                 Don&apos;t have an account?{" "}
                 <Link 
                   href="/auth/register" 
-                  className="text-[#1e40af] hover:text-[#1e3a8a] font-semibold transition-colors"
+                  className="text-[#3b82f6] hover:text-[#2563eb] font-semibold transition-colors"
                 >
                   Register as Parent
                 </Link>

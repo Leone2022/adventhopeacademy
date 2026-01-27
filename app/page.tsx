@@ -90,8 +90,8 @@ const footerLinks = {
     { name: 'Contact Us', href: '#contact' },
   ],
   resources: [
-    { name: 'Student Portal', href: '/auth/login' },
-    { name: 'Parent Portal', href: '/auth/login' },
+    { name: 'Student Portal', href: '/portal/login' },
+    { name: 'Parent Portal', href: '/portal/login' },
     { name: 'Staff Login', href: '/auth/login' },
     { name: 'Online Application', href: '/apply' },
   ],
@@ -137,85 +137,54 @@ export default function Home() {
       />
 
       {/* Announcement Banner */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-2 text-center">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3">
-          <span className="animate-bounce text-xl">📚</span>
-          <p className="text-sm sm:text-base font-medium">
-            <span className="hidden sm:inline">Admissions Open for 2026! </span>
-            <Link href="/apply" className="underline font-bold hover:text-yellow-300 transition-colors">
-              Register Your Child Now →
-            </Link>
-          </p>
-          <span className="animate-bounce text-xl">🎓</span>
-        </div>
-      </div>
-
-      {/* Top Bar */}
-      <div className="bg-slate-900 text-white py-2.5 text-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-6">
-              <a href="tel:+263773102003" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <Phone className="h-4 w-4" />
-                <span className="hidden sm:inline">+263 773 102 003</span>
-              </a>
-              <a href="mailto:info@adventhope.ac.zw" className="hidden md:flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <Mail className="h-4 w-4" />
-                <span>info@adventhope.ac.zw</span>
-              </a>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2 text-slate-400">
-                <Clock className="h-4 w-4" />
-                <span>Mon - Fri: 7:30am - 4:30pm</span>
-              </div>
-              <div className="flex gap-3 ml-4">
-                <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Facebook">
-                  <Facebook className="h-4 w-4" />
-                </a>
-                <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Twitter">
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="LinkedIn">
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
+      <div className="bg-slate-900 text-white py-3 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+          <div className="flex items-center gap-6 text-sm">
+            <a href="tel:+263773102003" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              <Phone className="h-4 w-4" />
+              <span className="hidden sm:inline">+263 773 102 003</span>
+            </a>
+            <a href="mailto:info@adventhope.ac.zw" className="hidden md:flex items-center gap-2 hover:text-blue-400 transition-colors">
+              <Mail className="h-4 w-4" />
+              <span>info@adventhope.ac.zw</span>
+            </a>
           </div>
+          <Link href="/apply" className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors">
+            Admissions Open for 2026 →
+          </Link>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100">
+      <nav className="bg-white sticky top-0 z-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-16 h-16">
+              <div className="relative w-12 h-12">
                 <Image 
                   src="/uploads/logo.png" 
                   alt="Advent Hope Academy Logo" 
-                  width={64} 
-                  height={64}
+                  width={48} 
+                  height={48}
                   className="object-contain"
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-800 leading-tight">Advent Hope Academy</h1>
-                <p className="text-xs text-blue-600 font-medium">Excellence in Christian Education</p>
+                <h1 className="text-lg font-bold text-slate-900 leading-tight">Advent Hope Academy</h1>
+                <p className="text-xs text-slate-500">Excellence in Christian Education</p>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-10">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-slate-600 hover:text-blue-600 font-medium transition-colors relative group"
+                  className="text-sm text-slate-700 hover:text-slate-900 font-medium transition-colors"
                 >
                   {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full" />
                 </a>
               ))}
             </div>
@@ -223,18 +192,30 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex items-center gap-3">
               <Link
-                href="/auth/login"
-                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 text-slate-700 hover:text-blue-600 font-medium transition-colors"
+                href="/register"
+                className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm text-orange-600 hover:text-orange-700 font-semibold transition-colors border-2 border-orange-600 hover:border-orange-700 rounded-lg"
               >
-                Sign In
+                📝 Register
+              </Link>
+              <Link
+                href="/portal/login"
+                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-sm font-medium shadow-md hover:shadow-lg"
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden lg:inline">Parent</span>
+              </Link>
+              <Link
+                href="/portal/login"
+                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all text-sm font-medium shadow-md hover:shadow-lg"
+              >
+                <GraduationCap className="h-4 w-4" />
+                <span className="hidden lg:inline">Student</span>
               </Link>
               <Link
                 href="/auth/login"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg shadow-blue-600/25"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all text-sm font-medium shadow-md hover:shadow-lg"
               >
-                <span className="hidden sm:inline">Portal Access</span>
-                <span className="sm:hidden">Portal</span>
-                <ArrowRight className="h-4 w-4" />
+                <span>Staff</span>
               </Link>
 
               {/* Mobile Menu Button */}
@@ -267,239 +248,201 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900" />
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
-        
-        {/* Decorative Elements */}
-        <div className="absolute top-20 right-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section id="home" className="relative bg-gradient-to-br from-blue-50 via-white to-emerald-50 pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Text Content */}
-            <div className="text-center lg:text-left">
+            <div>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-blue-300 text-sm font-medium mb-8 border border-white/20">
-                <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-emerald-100 border border-blue-200 rounded-full text-slate-800 text-sm font-semibold mb-8 shadow-sm">
+                <Award className="h-4 w-4 text-blue-600" />
                 Cambridge & ZIMSEC Accredited
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Advent Hope
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">
-                  Academy
-                </span>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-emerald-900 bg-clip-text text-transparent mb-6 leading-tight tracking-tight">
+                Advent Hope Academy
               </h1>
 
-              {/* Subheading */}
-              <p className="text-xl sm:text-2xl text-blue-200 font-light mb-4">
-                Excellence in Christian Education
-              </p>
-
               {/* Description */}
-              <p className="text-lg text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Nurturing minds and shaping futures through quality education rooted in Christian values. 
-                We develop the whole child - spiritually, academically, physically, and socially.
+              <p className="text-xl text-slate-700 mb-10 leading-relaxed">
+                Excellence in Christian Education. Nurturing minds and shaping futures through quality education rooted in Christian values.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold hover:from-orange-700 hover:to-red-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  📝 Create Account
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
                 <Link
                   href="/apply"
-                  className="relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 animate-pulse"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-yellow-500"></span>
-                  </span>
-                  🎓 Register Now - No Login Required!
-                  <Send className="h-5 w-5" />
+                  Apply for Admission
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </div>
+              
+              {/* Portal Logins */}
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/portal/login"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  <Users className="h-5 w-5" />
+                  Parent Login
+                </Link>
+                <Link
+                  href="/portal/login"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-cyan-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  <GraduationCap className="h-5 w-5" />
+                  Student Login
                 </Link>
                 <Link
                   href="/auth/login"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-all shadow-md hover:shadow-lg"
                 >
-                  Portal Access
-                  <ArrowRight className="h-5 w-5" />
+                  <BookOpen className="h-5 w-5" />
+                  Admin Login
                 </Link>
               </div>
 
               {/* Trust Indicators */}
-              <div className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-slate-400">
+              <div className="mt-12 flex flex-wrap items-center gap-8 text-slate-500 text-sm">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-teal-400" />
-                  <span className="text-sm">Accredited Institution</span>
+                  <CheckCircle className="h-5 w-5" />
+                  <span>Accredited Institution</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-blue-400" />
-                  <span className="text-sm">Safe Learning Environment</span>
+                  <Shield className="h-5 w-5" />
+                  <span>Safe Environment</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-emerald-400" />
-                  <span className="text-sm">International Standards</span>
+                  <Globe className="h-5 w-5" />
+                  <span>International Standards</span>
                 </div>
               </div>
             </div>
 
             {/* Hero Visual */}
             <div className="hidden lg:block">
-              <div className="relative">
-                {/* Glow Effect */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-teal-500 rounded-3xl blur-2xl opacity-20" />
-                
-                {/* Main Card */}
-                <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
-                  {/* Logo Display */}
-                  <div className="flex items-center justify-center mb-8">
-                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                      <div className="text-center">
-                        <GraduationCap className="h-12 w-12 text-blue-600 mx-auto" />
-                        <span className="text-xs font-bold text-slate-700 mt-1 block">AHA</span>
-                      </div>
-                    </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+                    <BookOpen className="h-8 w-8 text-white" />
                   </div>
-
-                  {/* Program Cards */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                      <BookOpen className="h-8 w-8 mb-3 opacity-80" />
-                      <p className="font-semibold">Primary School</p>
-                      <p className="text-sm opacity-80">ECD - Grade 7</p>
-                    </div>
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 text-white">
-                      <Target className="h-8 w-8 mb-3 opacity-80" />
-                      <p className="font-semibold">Secondary</p>
-                      <p className="text-sm opacity-80">Form 1 - 6</p>
-                    </div>
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
-                      <Lightbulb className="h-8 w-8 mb-3 opacity-80" />
-                      <p className="font-semibold">Cambridge</p>
-                      <p className="text-sm opacity-80">IGCSE & A-Level</p>
-                    </div>
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white">
-                      <Award className="h-8 w-8 mb-3 opacity-80" />
-                      <p className="font-semibold">ZIMSEC</p>
-                      <p className="text-sm opacity-80">O & A Level</p>
-                    </div>
+                  <h3 className="font-bold text-xl text-slate-900 mb-2">Primary School</h3>
+                  <p className="text-sm text-slate-700 font-medium">ECD - Grade 7</p>
+                </div>
+                <div className="p-8 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-4 shadow-lg">
+                    <Target className="h-8 w-8 text-white" />
                   </div>
+                  <h3 className="font-bold text-xl text-slate-900 mb-2">Secondary</h3>
+                  <p className="text-sm text-slate-700 font-medium">Form 1 - 6</p>
+                </div>
+                <div className="p-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-4 shadow-lg">
+                    <Lightbulb className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-slate-900 mb-2">Cambridge</h3>
+                  <p className="text-sm text-slate-700 font-medium">IGCSE & A-Level</p>
+                </div>
+                <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg">
+                    <Award className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-slate-900 mb-2">ZIMSEC</h3>
+                  <p className="text-sm text-slate-700 font-medium">O & A Level</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-8 h-12 border-2 border-white/30 rounded-full flex justify-center pt-2">
-            <div className="w-1.5 h-3 bg-white/50 rounded-full" />
-          </div>
-        </div>
       </section>
 
       {/* Features Section */}
-      <section id="about" className="py-24 bg-slate-50">
+      <section id="about" className="py-24 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full mb-4">
-              Our Platform
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">
-              Everything You Need in One Place
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
+              <Shield className="h-4 w-4" />
+              Why Choose Us
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-6">
+              Comprehensive School Management
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Our comprehensive school management system brings together all aspects of education management
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Our platform brings together all aspects of education management in one unified system
             </p>
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div
-                key={index}
-                className={`group p-8 rounded-2xl ${feature.bgColor} hover:shadow-xl transition-all duration-300 border border-transparent hover:border-slate-200`}
-              >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+              <div key={index} className="group relative p-8 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
                   <feature.icon className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-3">{feature.title}</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-3">{feature.title}</h3>
                 <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity`}></div>
               </div>
             ))}
-          </div>
-
-          {/* CTA */}
-          <div className="text-center mt-12">
-            <Link
-              href="/auth/login"
-              className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group"
-            >
-              Explore All Features
-              <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
           </div>
         </div>
       </section>
 
       {/* Statistics Section */}
-      <section id="admissions" className="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
-        {/* Background Decoration */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-500 rounded-full blur-3xl" />
-        </div>
-
+      <section id="admissions" className="py-24 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-10"></div>
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 bg-white/10 text-blue-300 text-sm font-semibold rounded-full mb-4 backdrop-blur-sm">
-              By The Numbers
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Join Our Growing Community
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold mb-6">
+              <Trophy className="h-4 w-4" />
+              Our Track Record
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+              Over 15 Years of Excellence
             </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-              For over 15 years, we have been committed to providing quality education and shaping future leaders
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+              Building futures, one student at a time
             </p>
           </div>
 
           {/* Statistics Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {statistics.map((stat, index) => (
-              <div
-                key={index}
-                className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all text-center"
-              >
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+              <div key={index} className="text-center group">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 group-hover:scale-110 transition-transform">
                   <stat.icon className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-4xl sm:text-5xl font-bold text-white mb-2">
-                  {stat.value}
-                  <span className="text-blue-400">{stat.suffix}</span>
+                <div className="text-5xl lg:text-6xl font-bold text-white mb-2 group-hover:scale-105 transition-transform">
+                  {stat.value}{stat.suffix}
                 </div>
-                <p className="text-slate-400 font-medium">{stat.label}</p>
+                <p className="text-blue-100 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-16">
-            <a
-              href="https://adventhope.ac.zw"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all shadow-xl"
+          <div className="text-center">
+            <Link
+              href="/apply"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
             >
               Apply for Admission
               <ArrowRight className="h-5 w-5" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -610,78 +553,82 @@ export default function Home() {
             </div>
 
             {/* Quick Access Card */}
-            <div className="bg-gradient-to-br from-slate-900 to-blue-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl">
-              <h3 className="text-2xl font-bold mb-6">Quick Access Portals</h3>
-              <p className="text-slate-300 mb-8">
-                Access your portal to view grades, fees, announcements, and more.
-              </p>
+            <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-3xl p-8 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+              {/* Decorative circles */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <h3 className="text-3xl font-bold mb-4">Quick Access Portals</h3>
+                <p className="text-blue-100 mb-8 text-lg">
+                  Access your portal to view grades, fees, announcements, and more.
+                </p>
 
-              <div className="space-y-4">
-                <Link
-                  href="/auth/login"
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                      <GraduationCap className="h-6 w-6" />
+                <div className="space-y-4">
+                  <Link
+                    href="/portal/login"
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all group border border-white/20"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <GraduationCap className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">Student Portal</p>
+                        <p className="text-sm text-blue-100">Access your dashboard</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">Student Portal</p>
-                      <p className="text-sm text-slate-400">Access your dashboard</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                </Link>
+                    <ChevronRight className="h-6 w-6 text-blue-200 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </Link>
 
-                <Link
-                  href="/auth/login"
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center">
-                      <Users className="h-6 w-6" />
+                  <Link
+                    href="/portal/login"
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all group border border-white/20"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <Users className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">Parent Portal</p>
+                        <p className="text-sm text-blue-100">Track your child's progress</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">Parent Portal</p>
-                      <p className="text-sm text-slate-400">Track your child's progress</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                </Link>
+                    <ChevronRight className="h-6 w-6 text-blue-200 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </Link>
 
-                <Link
-                  href="/auth/login"
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center">
-                      <BookOpen className="h-6 w-6" />
+                  <Link
+                    href="/auth/login"
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all group border border-white/20"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <BookOpen className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">Staff Portal</p>
+                        <p className="text-sm text-blue-100">Teacher resources</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">Staff Portal</p>
-                      <p className="text-sm text-slate-400">Teacher resources</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                </Link>
+                    <ChevronRight className="h-6 w-6 text-blue-200 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </Link>
 
-                <a
-                  href="https://adventhope.ac.zw"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-colors group mt-6"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Send className="h-6 w-6" />
+                  <Link
+                    href="/apply"
+                    className="flex items-center justify-between p-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-all group mt-6 shadow-xl"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Send className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">Apply Now</p>
+                        <p className="text-sm text-amber-50">Start your application</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">Apply Now</p>
-                      <p className="text-sm text-white/80">Start your application</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-all" />
-                </a>
+                    <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-all" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -782,9 +729,14 @@ export default function Home() {
         <div className="border-t border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-slate-500 text-sm">
-                &copy; {new Date().getFullYear()} Advent Hope Academy. All rights reserved.
-              </p>
+              <div className="text-center sm:text-left">
+                <p className="text-slate-500 text-sm">
+                  &copy; {new Date().getFullYear()} Advent Hope Academy. All rights reserved.
+                </p>
+                <p className="text-slate-600 text-xs mt-1">
+                  Designed by <span className="text-blue-400 font-medium">LeeTec Solutions Systems</span> • <a href="tel:+263784031310" className="text-emerald-400 hover:text-emerald-300 transition-colors">+263 784 031 310</a>
+                </p>
+              </div>
               <div className="flex gap-6 text-sm">
                 <a href="#" className="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
@@ -794,16 +746,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Floating Register Button (Mobile) */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden">
-        <Link
-          href="/apply"
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold shadow-2xl animate-bounce hover:from-emerald-600 hover:to-teal-600 transition-all"
-        >
-          <span>Register Now</span>
-          <Send className="h-4 w-4" />
-        </Link>
-      </div>
     </main>
   );
 }

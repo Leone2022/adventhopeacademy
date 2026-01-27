@@ -49,6 +49,11 @@ next-env.d.ts
 Thumbs.db
 .DS_Store
 
+# Backups and Logs
+/backups/
+/logs/
+*.log
+
 # Logs
 logs
 *.log

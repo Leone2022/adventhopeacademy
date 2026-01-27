@@ -60,6 +60,17 @@ export default function DashboardPage() {
   // Stats data
   const statsCards = [
     {
+      label: "Pending Approvals",
+      value: "New",
+      icon: UserPlus,
+      iconBg: "bg-orange-50",
+      iconColor: "text-orange-600",
+      trend: "Review",
+      trendUp: true,
+      trendLabel: "registrations waiting",
+      link: "/admin/pending-registrations"
+    },
+    {
       label: "Total Students",
       value: "500+",
       icon: Users,
@@ -251,11 +262,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {statsCards.map((stat, index) => {
             const IconComponent = stat.icon
-            return (
-              <div 
-                key={index} 
-                className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200"
-              >
+            const content = (
+              <>
                 <div className="flex items-start justify-between mb-4">
                   <div className={`w-11 h-11 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
                     <IconComponent className={`w-5 h-5 ${stat.iconColor}`} />
@@ -274,9 +282,54 @@ export default function DashboardPage() {
                   <p className="text-slate-500 text-sm mt-1">{stat.label}</p>
                   <p className="text-slate-400 text-xs mt-0.5">{stat.trendLabel}</p>
                 </div>
+              </>
+            )
+            
+            if (stat.link) {
+              return (
+                <Link 
+                  key={index} 
+                  href={stat.link}
+                  className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:shadow-lg hover:border-orange-200 transition-all duration-200 cursor-pointer group"
+                >
+                  {content}
+                </Link>
+              )
+            }
+            
+            return (
+              <div 
+                key={index} 
+                className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                {content}
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Pending Registrations Widget */}
+      {(session.user.role === "SUPER_ADMIN" || session.user.role === "SCHOOL_ADMIN") && (
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5 lg:p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Pending Registrations</h3>
+                <p className="text-slate-600 text-sm mt-0.5">Students and parents awaiting approval</p>
+              </div>
+            </div>
+            <Link 
+              href="/admin/pending-registrations"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition"
+            >
+              Review
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       )}
 

@@ -61,36 +61,36 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { processedAt: 'desc' },
       take: 100,
-    });
+    }) as any[];
 
     // Calculate totals
     const totalCollected = transactions
-      .filter(t => t.type === 'PAYMENT')
-      .reduce((sum, t) => sum + Number(t.amount), 0);
+      .filter((t: any) => t.type === 'PAYMENT')
+      .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
 
     // Get total outstanding fees (all student balances)
     const studentAccounts = await prisma.studentAccount.findMany({
       select: { balance: true },
-    });
-    const outstandingFees = studentAccounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
+    }) as any[];
+    const outstandingFees = studentAccounts.reduce((sum: number, acc: any) => sum + Number(acc.balance), 0);
 
     // This month's collection
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisMonthCollection = transactions
-      .filter(t => 
+      .filter((t: any) => 
         t.type === 'PAYMENT' && 
         new Date(t.processedAt) >= thisMonthStart
       )
-      .reduce((sum, t) => sum + Number(t.amount), 0);
+      .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
 
     // Count students with outstanding balance
-    const studentsWithBalance = studentAccounts.filter(acc => Number(acc.balance) > 0).length;
+    const studentsWithBalance = studentAccounts.filter((acc: any) => Number(acc.balance) > 0).length;
 
     // Payment methods breakdown
     const paymentMethodsMap = new Map();
     transactions
-      .filter(t => t.type === 'PAYMENT' && t.paymentMethod)
-      .forEach(t => {
+      .filter((t: any) => t.type === 'PAYMENT' && t.paymentMethod)
+      .forEach((t: any) => {
         const method = t.paymentMethod!;
         const current = paymentMethodsMap.get(method) || { amount: 0, count: 0 };
         paymentMethodsMap.set(method, {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.amount - a.amount);
 
     // Recent transactions with student info
-    const recentTransactions = transactions.slice(0, 10).map(t => ({
+    const recentTransactions = transactions.slice(0, 10).map((t: any) => ({
       id: t.id,
       studentName: `${t.studentAccount.student.firstName} ${t.studentAccount.student.lastName}`,
       studentNumber: t.studentAccount.student.studentNumber,

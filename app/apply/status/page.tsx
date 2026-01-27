@@ -21,7 +21,7 @@ interface ApplicationStatus {
   applicationNumber: string;
   status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'ENROLLED';
   studentName: string;
-  gradeApplyingFor: string;
+  gradeApplying: string;
   curriculum: string;
   submittedAt: string;
   reviewedAt?: string;
@@ -282,7 +282,7 @@ export default function ApplicationStatusPage() {
                   <div>
                     <p className="text-sm text-slate-500">Applying For</p>
                     <p className="font-semibold text-slate-800">
-                      {gradeLabels[applicationStatus.gradeApplyingFor] || applicationStatus.gradeApplyingFor} ({applicationStatus.curriculum})
+                      {gradeLabels[applicationStatus.gradeApplying] || applicationStatus.gradeApplying} ({applicationStatus.curriculum})
                     </p>
                   </div>
                 </div>

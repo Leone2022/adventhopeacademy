@@ -6,6 +6,19 @@ export default withAuth(
     const token = req.nextauth.token
     const path = req.nextUrl.pathname
 
+    // Force password change if required (except on change-password page itself and public routes)
+    if (
+      token?.mustChangePassword &&
+      !path.startsWith("/portal/change-password") &&
+      !path.startsWith("/api/auth/change-password") &&
+      !path.startsWith("/api/auth") &&
+      !path.startsWith("/_next") &&
+      !path.startsWith("/auth/signout") &&
+      !path.startsWith("/") // Allow home page and public routes
+    ) {
+      return NextResponse.redirect(new URL("/portal/change-password", req.url))
+    }
+
     // Super Admin routes
     if (path.startsWith("/super-admin")) {
       if (token?.role !== "SUPER_ADMIN") {
@@ -80,7 +93,15 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         // Allow access to public routes
-        const publicPaths = ["/", "/auth/login", "/auth/register", "/apply"]
+        const publicPaths = [
+          "/",
+          "/auth/login",
+          "/auth/register",
+          "/apply",
+          "/portal/login",
+          "/portal/forgot-password",
+          "/portal/reset-password"
+        ]
         const isPublicPath = publicPaths.some((path) =>
           req.nextUrl.pathname.startsWith(path)
         )

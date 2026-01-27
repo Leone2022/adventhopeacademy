@@ -48,32 +48,44 @@ model School {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
-  password         String
-  name             String
-  phone            String?
-  role             UserRole
-  schoolId         String?
-  isActive         Boolean   @default(true)
-  emailVerified    DateTime?
-  twoFactorEnabled Boolean   @default(false)
-  twoFactorSecret  String?
-  lastLogin        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  createdBy        String?
-  accounts         Account[]
-  parentProfile    Parent?
-  sessions         Session[]
-  staffProfile     Staff?
-  studentProfile   Student?
-  creator          User?     @relation("UserCreator", fields: [createdBy], references: [id])
-  createdUsers     User[]    @relation("UserCreator")
-  school           School?   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  id                        String     @id @default(cuid())
+  email                     String     @unique
+  password                  String
+  name                      String
+  phone                     String?
+  role                      UserRole
+  status                    UserStatus @default(ACTIVE)
+  rejectionReason           String?
+  schoolId                  String?
+  isActive                  Boolean    @default(true)
+  emailVerified             DateTime?
+  emailVerificationToken    String?    @unique
+  emailVerificationExpires  DateTime?
+  twoFactorEnabled          Boolean    @default(false)
+  twoFactorSecret           String?
+  lastLogin                 DateTime?
+  mustChangePassword        Boolean    @default(true)
+  passwordResetToken        String?
+  passwordResetExpires      DateTime?
+  failedLoginAttempts       Int        @default(0)
+  lastFailedLoginAt         DateTime?
+  accountLockedUntil        DateTime?
+  createdAt                 DateTime   @default(now())
+  updatedAt                 DateTime   @updatedAt
+  createdBy                 String?
+  accounts                  Account[]
+  parentProfile             Parent?
+  sessions                  Session[]
+  staffProfile              Staff?
+  studentProfile            Student?
+  creator                   User?      @relation("UserCreator", fields: [createdBy], references: [id])
+  createdUsers              User[]     @relation("UserCreator")
+  school                    School?    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([schoolId, role])
+  @@index([passwordResetToken])
+  @@index([emailVerificationToken])
   @@map("users")
 }
 
@@ -142,10 +154,13 @@ model Student {
   emergencyContacts          Json?
   previousSchool             String?
   previousGrade              String?
+  gradeApplying              String?
+  gradeLevel                 String?
   transferReason             String?
   transportRouteId           String?
   isAlumni                   Boolean            @default(false)
   isBoarding                 Boolean            @default(false)
+  parentInfo                 Json?
   createdAt                  DateTime           @default(now())
   updatedAt                  DateTime           @updatedAt
   createdBy                  String?
@@ -184,20 +199,25 @@ model Student {
 }
 
 model Parent {
-  id             String          @id @default(cuid())
-  userId         String          @unique
-  occupation     String?
-  employer       String?
-  workPhone      String?
-  workAddress    String?
-  address        String?
-  alternatePhone String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  messages       Message[]       @relation("ParentMessages")
-  students       ParentStudent[]
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments       Payment[]
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  applicationNumber String?         @unique
+  firstName         String?
+  lastName          String?
+  nationalId        String?
+  city              String?
+  occupation        String?
+  employer          String?
+  workPhone         String?
+  workAddress       String?
+  address           String?
+  alternatePhone    String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  messages          Message[]       @relation("ParentMessages")
+  students          ParentStudent[]
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments          Payment[]
 
   @@map("parents")
 }
@@ -969,6 +989,14 @@ enum UserRole {
   HOSTEL_MANAGER
   PARENT
   STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  REJECTED
+  SUSPENDED
+  INACTIVE
 }
 
 enum Curriculum {

@@ -6,6 +6,7 @@ declare module "next-auth" {
       id: string
       role: string
       schoolId: string | null
+      mustChangePassword?: boolean
       school: {
         id: string
         name: string
@@ -18,6 +19,7 @@ declare module "next-auth" {
     id: string
     role: string
     schoolId: string | null
+    mustChangePassword?: boolean
     school: {
       id: string
       name: string
@@ -31,6 +33,7 @@ declare module "next-auth/jwt" {
     id: string
     role: string
     schoolId: string | null
+    mustChangePassword?: boolean
     school: {
       id: string
       name: string
