@@ -30,6 +30,7 @@ import {
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
   dashboard: LayoutDashboard,
   students: Users,
+  parents: Users,
   staff: Briefcase,
   classes: BookOpen,
   finances: Wallet,
@@ -83,6 +84,7 @@ export default function DashboardLayout({
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", iconKey: "dashboard", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "ACCOUNTANT", "REGISTRAR", "TEACHER", "HOSTEL_MANAGER"] },
     { href: "/dashboard/applications", label: "Applications", iconKey: "applications", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "REGISTRAR"] },
+    { href: "/dashboard/parents", label: "Parents", iconKey: "parents", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "REGISTRAR"] },
     { href: "/dashboard/students", label: "Students", iconKey: "students", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "REGISTRAR"] },
     { href: "/dashboard/staff", label: "Staff", iconKey: "staff", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
     { href: "/dashboard/classes", label: "Classes", iconKey: "classes", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN", "TEACHER"] },
