@@ -5,7 +5,7 @@ import Link from 'next/link';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Document, Packer, Table, TableRow, TableCell, TextRun } from 'docx';
+import { Document, Packer, Table, TableRow, TableCell, TextRun, Paragraph } from 'docx';
 import {
   Users,
   Search,
@@ -200,12 +200,12 @@ export default function StudentsPage() {
     const rows = students.map(student => 
       new TableRow({
         children: [
-          new TableCell({ children: [new TextRun(student.studentNumber)] }),
-          new TableCell({ children: [new TextRun(`${student.firstName} ${student.lastName}`)] }),
-          new TableCell({ children: [new TextRun(student.email || '-')] }),
-          new TableCell({ children: [new TextRun(student.phone || '-')] }),
-          new TableCell({ children: [new TextRun(student.status)] }),
-          new TableCell({ children: [new TextRun(student.currentClass?.name || '-')] }),
+          new TableCell({ children: [new Paragraph(student.studentNumber)] }),
+          new TableCell({ children: [new Paragraph(`${student.firstName} ${student.lastName}`)] }),
+          new TableCell({ children: [new Paragraph(student.email || '-')] }),
+          new TableCell({ children: [new Paragraph(student.phone || '-')] }),
+          new TableCell({ children: [new Paragraph(student.status)] }),
+          new TableCell({ children: [new Paragraph(student.currentClass?.name || '-')] }),
         ],
       })
     );
@@ -218,12 +218,12 @@ export default function StudentsPage() {
             rows: [
               new TableRow({
                 children: [
-                  new TableCell({ children: [new TextRun('Student #')] }),
-                  new TableCell({ children: [new TextRun('Name')] }),
-                  new TableCell({ children: [new TextRun('Email')] }),
-                  new TableCell({ children: [new TextRun('Phone')] }),
-                  new TableCell({ children: [new TextRun('Status')] }),
-                  new TableCell({ children: [new TextRun('Class')] }),
+                  new TableCell({ children: [new Paragraph('Student #')] }),
+                  new TableCell({ children: [new Paragraph('Name')] }),
+                  new TableCell({ children: [new Paragraph('Email')] }),
+                  new TableCell({ children: [new Paragraph('Phone')] }),
+                  new TableCell({ children: [new Paragraph('Status')] }),
+                  new TableCell({ children: [new Paragraph('Class')] }),
                 ],
               }),
               ...rows,
