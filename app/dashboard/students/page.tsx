@@ -27,6 +27,8 @@ import {
   Clock,
   X,
   FileText,
+  BarChart3,
+  File,
 } from 'lucide-react';
 
 interface Student {
@@ -276,21 +278,24 @@ export default function StudentsPage() {
             <div className="hidden group-hover:block absolute right-0 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-50">
               <button
                 onClick={exportToExcel}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 first:rounded-t-lg border-b border-slate-200 flex items-center gap-2 text-slate-700 font-medium"
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 first:rounded-t-lg border-b border-slate-200 flex items-center gap-3 text-slate-700 font-medium"
               >
-                📊 Export to Excel
+                <BarChart3 className="h-5 w-5 text-emerald-600" />
+                Export to Excel
               </button>
               <button
                 onClick={exportToPDF}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-slate-700 font-medium"
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 border-b border-slate-200 flex items-center gap-3 text-slate-700 font-medium"
               >
-                📄 Export to PDF
+                <FileText className="h-5 w-5 text-red-600" />
+                Export to PDF
               </button>
               <button
                 onClick={exportToWord}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 last:rounded-b-lg flex items-center gap-2 text-slate-700 font-medium"
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 last:rounded-b-lg flex items-center gap-3 text-slate-700 font-medium"
               >
-                📝 Export to Word
+                <File className="h-5 w-5 text-blue-600" />
+                Export to Word
               </button>
             </div>
           </div>
