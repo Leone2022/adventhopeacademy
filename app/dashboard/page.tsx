@@ -63,8 +63,8 @@ export default function DashboardPage() {
       label: "Pending Approvals",
       value: "New",
       icon: UserPlus,
-      iconBg: "bg-orange-50",
-      iconColor: "text-orange-600",
+      iconBg: "bg-indigo-50",
+      iconColor: "text-indigo-600",
       trend: "Review",
       trendUp: true,
       trendLabel: "registrations waiting",
@@ -74,8 +74,8 @@ export default function DashboardPage() {
       label: "Total Students",
       value: "500+",
       icon: Users,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      iconBg: "bg-purple-50",
+      iconColor: "text-purple-600",
       trend: "+12%",
       trendUp: true,
       trendLabel: "from last term"
@@ -84,8 +84,8 @@ export default function DashboardPage() {
       label: "Total Staff",
       value: "50+",
       icon: Briefcase,
-      iconBg: "bg-emerald-50",
-      iconColor: "text-emerald-600",
+      iconBg: "bg-teal-50",
+      iconColor: "text-teal-600",
       trend: "+3",
       trendUp: true,
       trendLabel: "new this month"
@@ -94,8 +94,8 @@ export default function DashboardPage() {
       label: "Active Classes",
       value: "24",
       icon: BookOpen,
-      iconBg: "bg-amber-50",
-      iconColor: "text-amber-600",
+      iconBg: "bg-cyan-50",
+      iconColor: "text-cyan-600",
       trend: "Full",
       trendUp: true,
       trendLabel: "capacity"
@@ -104,8 +104,8 @@ export default function DashboardPage() {
       label: "Fee Collection",
       value: "85%",
       icon: TrendingUp,
-      iconBg: "bg-violet-50",
-      iconColor: "text-violet-600",
+      iconBg: "bg-pink-50",
+      iconColor: "text-pink-600",
       trend: "+5%",
       trendUp: true,
       trendLabel: "from last month"
@@ -224,7 +224,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
