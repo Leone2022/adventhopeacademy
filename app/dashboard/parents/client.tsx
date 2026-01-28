@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { Search, Users, Mail, Phone, Filter, Download, CheckCircle2 } from "lucide-react"
+import { Search, Users, Mail, Phone, Filter, Download, CheckCircle2, Edit, Key } from "lucide-react"
 
 interface ParentStudent {
   id: string
@@ -212,6 +212,15 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
                     <CheckCircle2 className="h-4 w-4" />
                     {parent.status}
                   </span>
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    <Link
+                      href={`/dashboard/parents/${parent.id}`}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-medium"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit
+                    </Link>
+                  </div>
                   <Link
                     href={`/dashboard/students?parent=${parent.id}`}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
