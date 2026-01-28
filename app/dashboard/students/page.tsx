@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Document, Packer, Table, TableRow, TableCell, TextRun } from 'docx';
 import {
   Users,
   Search,
@@ -145,6 +149,96 @@ export default function StudentsPage() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
+  const exportToExcel = () => {
+    const data = students.map(student => ({
+      'Student Number': student.studentNumber,
+      'First Name': student.firstName,
+      'Last Name': student.lastName,
+      'Email': student.email || '-',
+      'Phone': student.phone || '-',
+      'Gender': student.gender,
+      'Date of Birth': student.dateOfBirth,
+      'Curriculum': student.curriculum,
+      'Class': student.currentClass?.name || '-',
+      'Status': student.status,
+      'Boarding': student.isBoarding ? 'Yes' : 'No',
+      'Account Balance': student.account?.balance || 0,
+    }));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    XLSX.writeFile(wb, `students-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const data = students.map(student => [
+      student.studentNumber,
+      `${student.firstName} ${student.lastName}`,
+      student.email || '-',
+      student.phone || '-',
+      student.status,
+      student.currentClass?.name || '-',
+    ]);
+    
+    autoTable(doc, {
+      head: [['Student #', 'Name', 'Email', 'Phone', 'Status', 'Class']],
+      body: data,
+      startY: 20,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      columnStyles: { 0: { cellWidth: 20 } },
+    });
+    
+    doc.text('Student List', 10, 10);
+    doc.save(`students-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportToWord = async () => {
+    const rows = students.map(student => 
+      new TableRow({
+        children: [
+          new TableCell({ children: [new TextRun(student.studentNumber)] }),
+          new TableCell({ children: [new TextRun(`${student.firstName} ${student.lastName}`)] }),
+          new TableCell({ children: [new TextRun(student.email || '-')] }),
+          new TableCell({ children: [new TextRun(student.phone || '-')] }),
+          new TableCell({ children: [new TextRun(student.status)] }),
+          new TableCell({ children: [new TextRun(student.currentClass?.name || '-')] }),
+        ],
+      })
+    );
+
+    const doc = new Document({
+      sections: [{
+        children: [
+          new Table({
+            width: { size: 100, type: 'pct' },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({ children: [new TextRun('Student #')] }),
+                  new TableCell({ children: [new TextRun('Name')] }),
+                  new TableCell({ children: [new TextRun('Email')] }),
+                  new TableCell({ children: [new TextRun('Phone')] }),
+                  new TableCell({ children: [new TextRun('Status')] }),
+                  new TableCell({ children: [new TextRun('Class')] }),
+                ],
+              }),
+              ...rows,
+            ],
+          }),
+        ],
+      }],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students-${new Date().toISOString().split('T')[0]}.docx`;
+    a.click();
+  };
+
   const getStatusBadge = (status: string) => {
     const config = statusColors[status] || statusColors.ACTIVE;
     const Icon = config.icon;
@@ -174,10 +268,32 @@ export default function StudentsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm hover:shadow active:scale-95">
-            <Download className="h-4 w-4" />
-            Export
-          </button>
+          <div className="relative group">
+            <button className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm hover:shadow active:scale-95">
+              <Download className="h-4 w-4" />
+              Export
+            </button>
+            <div className="hidden group-hover:block absolute right-0 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-50">
+              <button
+                onClick={exportToExcel}
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 first:rounded-t-lg border-b border-slate-200 flex items-center gap-2 text-slate-700 font-medium"
+              >
+                📊 Export to Excel
+              </button>
+              <button
+                onClick={exportToPDF}
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-slate-700 font-medium"
+              >
+                📄 Export to PDF
+              </button>
+              <button
+                onClick={exportToWord}
+                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 last:rounded-b-lg flex items-center gap-2 text-slate-700 font-medium"
+              >
+                📝 Export to Word
+              </button>
+            </div>
+          </div>
           <Link
             href="/dashboard/students/new"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-lg shadow-blue-600/25 hover:shadow-xl active:scale-95"
