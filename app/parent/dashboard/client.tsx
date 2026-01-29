@@ -201,28 +201,48 @@ export default function ParentDashboardClient({
             {children.length === 0 ? (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 flex items-start gap-4">
                 <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
+                <div className="flex-1">
                   <h3 className="font-semibold text-yellow-800 mb-1">
-                    No Active Children
+                    No Children Linked Yet
                   </h3>
-                  <p className="text-sm text-yellow-700">
-                    You don&apos;t have any active children enrolled in the school. Please
-                    contact the school administration if this is an error.
+                  <p className="text-sm text-yellow-700 mb-4">
+                    You don&apos;t have any children linked to your account yet.
                   </p>
+                  <Link
+                    href="/portal/add-child"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                  >
+                    <GraduationCap className="w-4 h-4" />
+                    Add Your Child
+                  </Link>
                 </div>
               </div>
             ) : (
               <>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-slate-800">Your Children</h3>
+                  <Link
+                    href="/portal/add-child"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-medium"
+                  >
+                    <GraduationCap className="w-4 h-4" />
+                    Add Child
+                  </Link>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   {children.map((child) => (
-                    <div
+                    <Link
                       key={child.id}
-                      className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
+                      href={`/parent/children/${child.id}`}
+                      className={`block bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
                         selectedChild?.id === child.id
                           ? "border-[#3b82f6] shadow-lg"
-                          : "border-slate-200 hover:border-slate-300"
+                          : "border-slate-200 hover:border-slate-300 hover:shadow-md"
                       }`}
-                      onClick={() => setSelectedChild(child)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setSelectedChild(child)
+                      }}
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-16 h-16 bg-gradient-to-br from-[#3b82f6] to-[#10b981] rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
@@ -266,7 +286,11 @@ export default function ParentDashboardClient({
                           </div>
                         </div>
                       )}
-                    </div>
+
+                      <div className="mt-4 flex items-center justify-end text-blue-600">
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
 

@@ -19,10 +19,33 @@ export default async function ParentDashboardPage() {
       students: {
         include: {
           student: {
-            include: {
-              currentClass: true,
-              school: true,
-              account: true,
+            select: {
+              id: true,
+              studentNumber: true,
+              firstName: true,
+              lastName: true,
+              gender: true,
+              dateOfBirth: true,
+              status: true,
+              currentClassId: true,
+              currentClass: {
+                select: {
+                  name: true,
+                },
+              },
+              photo: true,
+              bloodGroup: true,
+              phone: true,
+              email: true,
+              address: true,
+              admissionDate: true,
+              account: {
+                select: {
+                  balance: true,
+                  lastPaymentDate: true,
+                  lastPaymentAmount: true,
+                },
+              },
             },
           },
         },
