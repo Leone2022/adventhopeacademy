@@ -81,7 +81,7 @@ export default async function StudentDetailsPage({
           academicYear: true,
         },
         orderBy: {
-          academicYear: "desc",
+          createdAt: "desc",
         },
       },
     },
