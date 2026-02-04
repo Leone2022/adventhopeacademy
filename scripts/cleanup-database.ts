@@ -287,40 +287,9 @@ async function cleanupInactiveApplications() {
 async function cleanupOrphanedInvoices() {
   console.log("\n📄 Checking for orphaned invoices (deleted student accounts)...");
 
-  const orphanedInvoices = await prisma.invoice.findMany({
-    where: {
-      studentAccount: null,
-    },
-    select: { id: true, invoiceNumber: true, createdAt: true },
-  });
-
-  console.log(`  Found ${orphanedInvoices.length} invoices without student accounts`);
-
-  for (const invoice of orphanedInvoices) {
-    console.log(`  ✓ Deleting orphaned invoice: ${invoice.invoiceNumber}`);
-
-    // Delete invoice items and transactions first
-    const items = await prisma.invoiceItem.findMany({
-      where: { invoiceId: invoice.id },
-      select: { id: true },
-    });
-
-    for (const item of items) {
-      await prisma.transaction.deleteMany({
-        where: { invoiceItemId: item.id },
-      });
-    }
-
-    await prisma.invoiceItem.deleteMany({
-      where: { invoiceId: invoice.id },
-    });
-
-    await prisma.invoice.delete({
-      where: { id: invoice.id },
-    });
-
-    stats.orphanedInvoicesRemoved++;
-  }
+  // studentAccountId is required (NOT NULL) in schema, so orphaned invoices
+  // cannot exist due to foreign key constraints
+  console.log("  No orphaned invoices possible (studentAccountId is required) ✓");
 }
 
 async function cleanupExpiredSessions() {
@@ -355,25 +324,9 @@ async function cleanupExpiredSessions() {
 async function cleanupOrphanedAccounts() {
   console.log("\n🔑 Checking for orphaned OAuth accounts...");
 
-  const orphanedAccounts = await prisma.account.findMany({
-    where: {
-      user: null,
-    },
-    select: { id: true, provider: true, createdAt: true },
-  });
-
-  console.log(`  Found ${orphanedAccounts.length} orphaned OAuth accounts`);
-
-  if (orphanedAccounts.length > 0) {
-    const result = await prisma.account.deleteMany({
-      where: {
-        user: null,
-      },
-    });
-
-    stats.orphanedAccountsRemoved = result.count;
-    console.log(`  ✓ Deleted ${result.count} orphaned OAuth accounts`);
-  }
+  // userId is required (NOT NULL) in schema, so orphaned accounts
+  // cannot exist due to foreign key constraints
+  console.log("  No orphaned OAuth accounts possible (userId is required) ✓");
 }
 
 async function main() {

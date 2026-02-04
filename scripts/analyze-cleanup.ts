@@ -266,28 +266,9 @@ async function analyzeOrphanedInvoices() {
   console.log("\n\n📄 ORPHANED INVOICES ANALYSIS");
   console.log("-".repeat(50));
 
-  const invoices = await prisma.invoice.findMany({
-    where: {
-      studentAccount: null,
-    },
-    select: {
-      id: true,
-      invoiceNumber: true,
-      createdAt: true,
-    },
-  });
-
-  if (invoices.length === 0) {
-    console.log("No orphaned invoices found ✓");
-    return;
-  }
-
-  console.log(`Found ${invoices.length} invoices without student accounts:\n`);
-
-  for (const invoice of invoices) {
-    console.log(`✗ ${invoice.invoiceNumber} | Created: ${invoice.createdAt.toLocaleDateString()}`);
-    stats.orphanedInvoices++;
-  }
+  // studentAccountId is required (NOT NULL) in schema, so orphaned invoices
+  // cannot exist due to foreign key constraints
+  console.log("No orphaned invoices possible (studentAccountId is required) ✓");
 }
 
 async function analyzeExpiredSessions() {
@@ -316,28 +297,9 @@ async function analyzeOrphanedAccounts() {
   console.log("\n\n🔑 ORPHANED OAUTH ACCOUNTS ANALYSIS");
   console.log("-".repeat(50));
 
-  const accounts = await prisma.account.findMany({
-    where: {
-      user: null,
-    },
-    select: {
-      id: true,
-      provider: true,
-      createdAt: true,
-    },
-  });
-
-  if (accounts.length === 0) {
-    console.log("No orphaned OAuth accounts found ✓");
-    return;
-  }
-
-  console.log(`Found ${accounts.length} orphaned OAuth accounts:\n`);
-
-  for (const account of accounts) {
-    console.log(`✗ ${account.provider} | Created: ${account.createdAt.toLocaleDateString()}`);
-    stats.orphanedAccounts++;
-  }
+  // userId is required (NOT NULL) in schema, so orphaned accounts
+  // cannot exist due to foreign key constraints
+  console.log("No orphaned OAuth accounts possible (userId is required) ✓");
 }
 
 async function main() {
