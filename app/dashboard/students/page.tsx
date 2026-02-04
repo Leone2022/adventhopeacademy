@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { Document, Packer, Table, TableRow, TableCell, TextRun, Paragraph } from 'docx';
+import { exportToExcel, exportToPDF, exportToWord, fetchStudentsForExport } from '@/lib/export-utils';
 import {
   Users,
   Search,
@@ -95,6 +92,7 @@ export default function StudentsPage() {
   const [curriculumFilter, setCurriculumFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; studentId: string | null; studentName: string }>({ show: false, studentId: null, studentName: '' });
 
   const fetchStudents = async () => {
@@ -151,94 +149,47 @@ export default function StudentsPage() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
-  const exportToExcel = () => {
-    const data = students.map(student => ({
-      'Student Number': student.studentNumber,
-      'First Name': student.firstName,
-      'Last Name': student.lastName,
-      'Email': student.email || '-',
-      'Phone': student.phone || '-',
-      'Gender': student.gender,
-      'Date of Birth': student.dateOfBirth,
-      'Curriculum': student.curriculum,
-      'Class': student.currentClass?.name || '-',
-      'Status': student.status,
-      'Boarding': student.isBoarding ? 'Yes' : 'No',
-      'Account Balance': student.account?.balance || 0,
-    }));
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb, ws, 'Students');
-    XLSX.writeFile(wb, `students-${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
+  const exportStudents = async (
+    format: 'excel' | 'pdf' | 'word',
+    curriculumOverride?: string
+  ) => {
+    setExporting(true);
+    try {
+      const curriculumValue = typeof curriculumOverride === 'string'
+        ? curriculumOverride
+        : curriculumFilter;
 
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    const data = students.map(student => [
-      student.studentNumber,
-      `${student.firstName} ${student.lastName}`,
-      student.email || '-',
-      student.phone || '-',
-      student.status,
-      student.currentClass?.name || '-',
-    ]);
-    
-    autoTable(doc, {
-      head: [['Student #', 'Name', 'Email', 'Phone', 'Status', 'Class']],
-      body: data,
-      startY: 20,
-      theme: 'grid',
-      styles: { fontSize: 10 },
-      columnStyles: { 0: { cellWidth: 20 } },
-    });
-    
-    doc.text('Student List', 10, 10);
-    doc.save(`students-${new Date().toISOString().split('T')[0]}.pdf`);
-  };
+      const allStudents = await fetchStudentsForExport({
+        search: searchTerm,
+        status: statusFilter,
+        curriculum: curriculumValue || undefined,
+      });
 
-  const exportToWord = async () => {
-    const rows = students.map(student => 
-      new TableRow({
-        children: [
-          new TableCell({ children: [new Paragraph(student.studentNumber)] }),
-          new TableCell({ children: [new Paragraph(`${student.firstName} ${student.lastName}`)] }),
-          new TableCell({ children: [new Paragraph(student.email || '-')] }),
-          new TableCell({ children: [new Paragraph(student.phone || '-')] }),
-          new TableCell({ children: [new Paragraph(student.status)] }),
-          new TableCell({ children: [new Paragraph(student.currentClass?.name || '-')] }),
-        ],
-      })
-    );
+      if (!allStudents || allStudents.length === 0) {
+        alert('No students to export');
+        return;
+      }
 
-    const doc = new Document({
-      sections: [{
-        children: [
-          new Table({
-            width: { size: 100, type: 'pct' },
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({ children: [new Paragraph('Student #')] }),
-                  new TableCell({ children: [new Paragraph('Name')] }),
-                  new TableCell({ children: [new Paragraph('Email')] }),
-                  new TableCell({ children: [new Paragraph('Phone')] }),
-                  new TableCell({ children: [new Paragraph('Status')] }),
-                  new TableCell({ children: [new Paragraph('Class')] }),
-                ],
-              }),
-              ...rows,
-            ],
-          }),
-        ],
-      }],
-    });
+      const datePart = new Date().toISOString().split('T')[0];
+      const label = curriculumValue ? curriculumValue : 'all';
 
-    const blob = await Packer.toBlob(doc);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `students-${new Date().toISOString().split('T')[0]}.docx`;
-    a.click();
+      if (format === 'excel') {
+        await exportToExcel(allStudents, `students-${label}-${datePart}.xlsx`);
+        return;
+      }
+
+      if (format === 'pdf') {
+        await exportToPDF(allStudents, `students-${label}-${datePart}.pdf`);
+        return;
+      }
+
+      await exportToWord(allStudents, `students-${label}-${datePart}.docx`);
+    } catch (error) {
+      console.error(`Error exporting to ${format.toUpperCase()}:`, error);
+      alert(`Failed to export to ${format.toUpperCase()}`);
+    } finally {
+      setExporting(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -269,35 +220,115 @@ export default function StudentsPage() {
             Manage student registrations, profiles, and records
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative group">
             <button className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm hover:shadow active:scale-95">
               <Download className="h-4 w-4" />
               Export
             </button>
-            <div className="hidden group-hover:block absolute right-0 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-50">
+            <div className="hidden group-hover:block absolute right-0 mt-1 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-50">
+              <div className="px-3 py-2 text-xs font-semibold text-slate-500">Excel</div>
               <button
-                onClick={exportToExcel}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 first:rounded-t-lg border-b border-slate-200 flex items-center gap-3 text-slate-700 font-medium"
+                onClick={() => exportStudents('excel', '')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <BarChart3 className="h-5 w-5 text-emerald-600" />
-                Export to Excel
+                <BarChart3 className="h-4 w-4 text-emerald-600" />
+                {exporting ? 'Exporting...' : 'Export All (Excel)'}
               </button>
               <button
-                onClick={exportToPDF}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 border-b border-slate-200 flex items-center gap-3 text-slate-700 font-medium"
+                onClick={() => exportStudents('excel', 'ZIMSEC')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FileText className="h-5 w-5 text-red-600" />
-                Export to PDF
+                <BarChart3 className="h-4 w-4 text-emerald-600" />
+                {exporting ? 'Exporting...' : 'Export ZIMSEC (Excel)'}
               </button>
               <button
-                onClick={exportToWord}
-                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 last:rounded-b-lg flex items-center gap-3 text-slate-700 font-medium"
+                onClick={() => exportStudents('excel', 'CAMBRIDGE')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <File className="h-5 w-5 text-blue-600" />
-                Export to Word
+                <BarChart3 className="h-4 w-4 text-emerald-600" />
+                {exporting ? 'Exporting...' : 'Export Cambridge (Excel)'}
+              </button>
+
+              <div className="px-3 py-2 text-xs font-semibold text-slate-500 border-t border-slate-200">PDF</div>
+              <button
+                onClick={() => exportStudents('pdf', '')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileText className="h-4 w-4 text-red-600" />
+                {exporting ? 'Exporting...' : 'Export All (PDF)'}
+              </button>
+              <button
+                onClick={() => exportStudents('pdf', 'ZIMSEC')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileText className="h-4 w-4 text-red-600" />
+                {exporting ? 'Exporting...' : 'Export ZIMSEC (PDF)'}
+              </button>
+              <button
+                onClick={() => exportStudents('pdf', 'CAMBRIDGE')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileText className="h-4 w-4 text-red-600" />
+                {exporting ? 'Exporting...' : 'Export Cambridge (PDF)'}
+              </button>
+
+              <div className="px-3 py-2 text-xs font-semibold text-slate-500 border-t border-slate-200">Word</div>
+              <button
+                onClick={() => exportStudents('word', '')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <File className="h-4 w-4 text-blue-600" />
+                {exporting ? 'Exporting...' : 'Export All (Word)'}
+              </button>
+              <button
+                onClick={() => exportStudents('word', 'ZIMSEC')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <File className="h-4 w-4 text-blue-600" />
+                {exporting ? 'Exporting...' : 'Export ZIMSEC (Word)'}
+              </button>
+              <button
+                onClick={() => exportStudents('word', 'CAMBRIDGE')}
+                disabled={exporting}
+                className="w-full text-left px-4 py-2 hover:bg-slate-50 border-t border-slate-100 flex items-center gap-3 text-slate-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <File className="h-4 w-4 text-blue-600" />
+                {exporting ? 'Exporting...' : 'Export Cambridge (Word)'}
               </button>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500">Quick Export (Excel):</span>
+            <button
+              onClick={() => exportStudents('excel', '')}
+              disabled={exporting}
+              className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              All
+            </button>
+            <button
+              onClick={() => exportStudents('excel', 'ZIMSEC')}
+              disabled={exporting}
+              className="px-3 py-2 text-xs font-semibold rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ZIMSEC
+            </button>
+            <button
+              onClick={() => exportStudents('excel', 'CAMBRIDGE')}
+              disabled={exporting}
+              className="px-3 py-2 text-xs font-semibold rounded-lg border border-indigo-200 text-indigo-700 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cambridge
+            </button>
           </div>
           <Link
             href="/dashboard/students/new"
@@ -325,37 +356,39 @@ export default function StudentsPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Active</p>
+              <p className="text-sm text-slate-600">ZIMSEC 🇿🇼</p>
               <p className="text-2xl font-bold text-emerald-600 mt-1">
-                {students.filter(s => s.status === 'ACTIVE').length}
+                {students.filter(s => s.curriculum === 'ZIMSEC').length}
               </p>
             </div>
             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-emerald-600" />
+              <GraduationCap className="h-6 w-6 text-emerald-600" />
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Boarding</p>
+              <p className="text-sm text-slate-600">Cambridge 🌐</p>
+              <p className="text-2xl font-bold text-indigo-600 mt-1">
+                {students.filter(s => s.curriculum === 'CAMBRIDGE').length}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <GraduationCap className="h-6 w-6 text-indigo-600" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-600">Active</p>
               <p className="text-2xl font-bold text-purple-600 mt-1">
-                {students.filter(s => s.isBoarding).length}
+                {students.filter(s => s.status === 'ACTIVE').length}
               </p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-              <MapPin className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-600">This Month</p>
-              <p className="text-2xl font-bold text-amber-600 mt-1">12</p>
-            </div>
-            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-              <Plus className="h-6 w-6 text-amber-600" />
+              <CheckCircle className="h-6 w-6 text-purple-600" />
             </div>
           </div>
         </div>
