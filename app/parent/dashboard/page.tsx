@@ -31,6 +31,7 @@ export default async function ParentDashboardPage() {
               currentClass: {
                 select: {
                   name: true,
+                  level: true,
                 },
               },
               photo: true,
@@ -79,6 +80,7 @@ export default async function ParentDashboardPage() {
       photo: ps.student.photo,
       currentClass: ps.student.currentClass ? {
         name: ps.student.currentClass.name,
+        level: ps.student.currentClass.level,
       } : null,
       account: ps.student.account ? {
         balance: ps.student.account.balance.toNumber(),
