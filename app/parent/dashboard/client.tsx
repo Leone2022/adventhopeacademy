@@ -280,7 +280,7 @@ export default function ParentDashboardClient({
                                   : "text-green-600"
                               }`}
                             >
-                              ${Math.abs(child.account.balance).toFixed(2)}
+                              ${Math.abs(Number(child.account.balance)).toFixed(2)}
                               {child.account.balance < 0 ? " (Due)" : ""}
                             </span>
                           </div>

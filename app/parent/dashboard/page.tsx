@@ -83,7 +83,7 @@ export default async function ParentDashboardPage() {
         level: ps.student.currentClass.level,
       } : null,
       account: ps.student.account ? {
-        balance: ps.student.account.balance.toNumber(),
+        balance: Number(ps.student.account.balance || 0),
       } : null,
     }))
 

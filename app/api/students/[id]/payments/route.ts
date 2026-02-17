@@ -52,8 +52,8 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const balanceBefore = student.account.balance.toNumber();
-    const balanceAfter = balanceBefore + parseFloat(amount);
+    const balanceBefore = Number(student.account.balance || 0);
+    const balanceAfter = balanceBefore - parseFloat(amount);
 
     // Generate receipt number
     const year = new Date().getFullYear();
@@ -188,7 +188,7 @@ export async function GET(
       summary: {
         totalCharges,
         totalPayments,
-        currentBalance: student.account?.balance.toNumber() || 0,
+        currentBalance: Number(student.account?.balance || 0),
         percentagePaid: totalCharges > 0 ? Math.round((totalPayments / totalCharges) * 100) : 0,
       },
     });

@@ -90,7 +90,11 @@ export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [curriculumFilter, setCurriculumFilter] = useState('');
+  const [classFilter, setClassFilter] = useState('');
+  const [boardingFilter, setBoardingFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [viewAll, setViewAll] = useState(false);
+  const [stats, setStats] = useState({ total: 0, zimsec: 0, cambridge: 0, active: 0, boarding: 0, dayScholar: 0 });
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; studentId: string | null; studentName: string }>({ show: false, studentId: null, studentName: '' });
@@ -100,12 +104,14 @@ export default function StudentsPage() {
     try {
       const params = new URLSearchParams({
         page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
+        limit: viewAll ? '10000' : pagination.limit.toString(),
       });
       
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter) params.append('status', statusFilter);
       if (curriculumFilter) params.append('curriculum', curriculumFilter);
+      if (classFilter) params.append('classId', classFilter);
+      if (boardingFilter) params.append('isBoarding', boardingFilter);
 
       const response = await fetch(`/api/students?${params}`);
       const data = await response.json();
@@ -121,9 +127,33 @@ export default function StudentsPage() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/students?limit=10000');
+      const data = await response.json();
+      if (response.ok) {
+        const allStudents = data.students;
+        setStats({
+          total: allStudents.length,
+          zimsec: allStudents.filter((s: Student) => s.curriculum === 'ZIMSEC').length,
+          cambridge: allStudents.filter((s: Student) => s.curriculum === 'CAMBRIDGE').length,
+          active: allStudents.filter((s: Student) => s.status === 'ACTIVE').length,
+          boarding: allStudents.filter((s: Student) => s.isBoarding).length,
+          dayScholar: allStudents.filter((s: Student) => !s.isBoarding).length,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
-  }, [pagination.page, searchTerm, statusFilter, curriculumFilter]);
+  }, [pagination.page, searchTerm, statusFilter, curriculumFilter, classFilter, boardingFilter, viewAll]);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   const handleDelete = async (studentId: string) => {
     try {
@@ -340,13 +370,100 @@ export default function StudentsPage() {
         </div>
       </div>
 
+      {/* Quick Filter Buttons */}
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={() => {
+            setCurriculumFilter('');
+            setBoardingFilter('');
+            setStatusFilter('');
+            setClassFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            !curriculumFilter && !boardingFilter && !statusFilter && !classFilter
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          <Users className="inline h-4 w-4 mr-2" />
+          All Students ({stats.total})
+        </button>
+        <button
+          onClick={() => {
+            setCurriculumFilter('ZIMSEC');
+            setBoardingFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            curriculumFilter === 'ZIMSEC'
+              ? 'bg-emerald-600 text-white shadow-lg'
+              : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+          }`}
+        >
+          🇿🇼 ZimSec ({stats.zimsec})
+        </button>
+        <button
+          onClick={() => {
+            setCurriculumFilter('CAMBRIDGE');
+            setBoardingFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            curriculumFilter === 'CAMBRIDGE'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50'
+          }`}
+        >
+          🌐 Cambridge ({stats.cambridge})
+        </button>
+        <button
+          onClick={() => {
+            setBoardingFilter('true');
+            setCurriculumFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            boardingFilter === 'true'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'bg-white border border-purple-300 text-purple-700 hover:bg-purple-50'
+          }`}
+        >
+          🏠 Boarders ({stats.boarding})
+        </button>
+        <button
+          onClick={() => {
+            setBoardingFilter('false');
+            setCurriculumFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            boardingFilter === 'false'
+              ? 'bg-cyan-600 text-white shadow-lg'
+              : 'bg-white border border-cyan-300 text-cyan-700 hover:bg-cyan-50'
+          }`}
+        >
+          🚌 Day Scholars ({stats.dayScholar})
+        </button>
+        <button
+          onClick={() => {
+            setStatusFilter('ACTIVE');
+            setCurriculumFilter('');
+            setBoardingFilter('');
+          }}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            statusFilter === 'ACTIVE'
+              ? 'bg-green-600 text-white shadow-lg'
+              : 'bg-white border border-green-300 text-green-700 hover:bg-green-50'
+          }`}
+        >
+          <CheckCircle className="inline h-4 w-4 mr-2" />
+          Active ({stats.active})
+        </button>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Total Students</p>
-              <p className="text-2xl font-bold text-slate-800 mt-1">{pagination.total}</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
               <Users className="h-6 w-6 text-blue-600" />
@@ -357,9 +474,7 @@ export default function StudentsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">ZIMSEC 🇿🇼</p>
-              <p className="text-2xl font-bold text-emerald-600 mt-1">
-                {students.filter(s => s.curriculum === 'ZIMSEC').length}
-              </p>
+              <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.zimsec}</p>
             </div>
             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
               <GraduationCap className="h-6 w-6 text-emerald-600" />
@@ -370,9 +485,7 @@ export default function StudentsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Cambridge 🌐</p>
-              <p className="text-2xl font-bold text-indigo-600 mt-1">
-                {students.filter(s => s.curriculum === 'CAMBRIDGE').length}
-              </p>
+              <p className="text-2xl font-bold text-indigo-600 mt-1">{stats.cambridge}</p>
             </div>
             <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
               <GraduationCap className="h-6 w-6 text-indigo-600" />
@@ -383,9 +496,7 @@ export default function StudentsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Active</p>
-              <p className="text-2xl font-bold text-purple-600 mt-1">
-                {students.filter(s => s.status === 'ACTIVE').length}
-              </p>
+              <p className="text-2xl font-bold text-purple-600 mt-1">{stats.active}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
               <CheckCircle className="h-6 w-6 text-purple-600" />
@@ -410,6 +521,19 @@ export default function StudentsPage() {
               />
             </div>
           </form>
+
+          {/* View All Toggle */}
+          <button
+            onClick={() => setViewAll(!viewAll)}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 border rounded-lg transition-colors font-medium ${
+              viewAll
+                ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
+                : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            {viewAll ? `All ${stats.total}` : 'View All'}
+          </button>
 
           {/* Filter Toggle */}
           <button
@@ -461,29 +585,95 @@ export default function StudentsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Class
+                Student Type
               </label>
-              <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                <option value="">All Classes</option>
-                <option value="form1">Form 1</option>
-                <option value="form2">Form 2</option>
-                <option value="form3">Form 3</option>
-                <option value="form4">Form 4</option>
+              <select
+                value={boardingFilter}
+                onChange={(e) => setBoardingFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              >
+                <option value="">All Student Types</option>
+                <option value="true">Boarders</option>
+                <option value="false">Day Scholars</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Boarding
-              </label>
-              <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                <option value="">All</option>
-                <option value="true">Boarding</option>
-                <option value="false">Day Scholar</option>
-              </select>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('');
+                  setCurriculumFilter('');
+                  setClassFilter('');
+                  setBoardingFilter('');
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
+                className="w-full px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium mt-6"
+              >
+                Clear All Filters
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Filter Summary */}
+      {(statusFilter || curriculumFilter || boardingFilter || classFilter || searchTerm) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p className="font-medium text-blue-900 mb-2">
+                Showing {students.length} of {stats.total} students
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {searchTerm && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-blue-300 rounded-full text-sm text-blue-700">
+                    Search: &quot;{searchTerm}&quot;
+                    <button onClick={() => setSearchTerm('')} className="hover:text-blue-900">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {curriculumFilter && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-blue-300 rounded-full text-sm text-blue-700">
+                    {curriculumFilter}
+                    <button onClick={() => setCurriculumFilter('')} className="hover:text-blue-900">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {boardingFilter && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-blue-300 rounded-full text-sm text-blue-700">
+                    {boardingFilter === 'true' ? 'Boarders' : 'Day Scholars'}
+                    <button onClick={() => setBoardingFilter('')} className="hover:text-blue-900">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {statusFilter && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-blue-300 rounded-full text-sm text-blue-700">
+                    Status: {statusFilter}
+                    <button onClick={() => setStatusFilter('')} className="hover:text-blue-900">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('');
+                setCurriculumFilter('');
+                setClassFilter('');
+                setBoardingFilter('');
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Students Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
@@ -501,7 +691,7 @@ export default function StudentsPage() {
                   Class
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Curriculum
+                  Type & Curriculum
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Balance
@@ -569,21 +759,30 @@ export default function StudentsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                        student.curriculum === 'CAMBRIDGE'
-                          ? 'bg-indigo-100 text-indigo-700'
-                          : 'bg-emerald-100 text-emerald-700'
-                      }`}>
-                        {student.curriculum}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
+                          student.curriculum === 'CAMBRIDGE'
+                            ? 'bg-indigo-100 text-indigo-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {student.curriculum}
+                        </span>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
+                          student.isBoarding
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-cyan-100 text-cyan-700'
+                        }`}>
+                          {student.isBoarding ? '🏠 Boarder' : '🚌 Day Scholar'}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`font-medium ${
-                        (student.account?.balance || 0) < 0
+                        Number(student.account?.balance || 0) < 0
                           ? 'text-red-600'
                           : 'text-emerald-600'
                       }`}>
-                        {formatCurrency(student.account?.balance || 0)}
+                        {formatCurrency(Number(student.account?.balance || 0))}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -629,7 +828,7 @@ export default function StudentsPage() {
         </div>
 
         {/* Pagination */}
-        {pagination.totalPages > 1 && (
+        {!viewAll && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
             <p className="text-sm text-slate-600">
               Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
@@ -655,6 +854,13 @@ export default function StudentsPage() {
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
+          </div>
+        )}
+        {viewAll && students.length > 0 && (
+          <div className="flex items-center justify-center px-6 py-4 border-t border-slate-200 bg-emerald-50">
+            <p className="text-sm font-medium text-emerald-700">
+              Showing all {students.length} students
+            </p>
           </div>
         )}
       </div>

@@ -584,3 +584,119 @@ export async function sendEmailVerification(
   const text = `Hello ${name}, Verify your email: ${verificationUrl} This link expires in 24 hours.`
   return sendEmail({ to: email, subject, html, text })
 }
+
+/**
+ * Send payment receipt email
+ */
+export async function sendReceiptEmail(options: {
+  to: string;
+  studentName: string;
+  amount: number;
+  receiptNumber: string;
+  paymentMethod: string;
+  date: Date;
+}): Promise<boolean> {
+  const { to, studentName, amount, receiptNumber, paymentMethod, date } = options;
+
+  const subject = `Payment Receipt - ${receiptNumber}`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+        .receipt { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border: 2px solid #10b981; }
+        .receipt-header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; }
+        .receipt-row { display: flex; justify-content: space-between; margin: 12px 0; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+        .receipt-label { font-weight: bold; color: #6b7280; }
+        .receipt-value { color: #111827; }
+        .amount { font-size: 24px; font-weight: bold; color: #10b981; text-align: center; margin: 20px 0; }
+        .success { background: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>✓ Payment Received</h1>
+          <p>Thank you for your payment</p>
+        </div>
+        <div class="content">
+          <div class="success">
+            <strong>✓ Payment Successful</strong>
+            <p style="margin: 5px 0 0 0;">Your payment has been received and processed.</p>
+          </div>
+
+          <div class="receipt">
+            <div class="receipt-header">
+              <h2 style="margin: 0; color: #111827;">PAYMENT RECEIPT</h2>
+              <p style="margin: 5px 0 0 0; color: #6b7280;">${receiptNumber}</p>
+            </div>
+
+            <div class="receipt-row">
+              <span class="receipt-label">Student:</span>
+              <span class="receipt-value">${studentName}</span>
+            </div>
+
+            <div class="receipt-row">
+              <span class="receipt-label">Payment Method:</span>
+              <span class="receipt-value">${paymentMethod}</span>
+            </div>
+
+            <div class="receipt-row">
+              <span class="receipt-label">Date:</span>
+              <span class="receipt-value">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</span>
+            </div>
+
+            <div class="receipt-row">
+              <span class="receipt-label">Receipt Number:</span>
+              <span class="receipt-value">${receiptNumber}</span>
+            </div>
+
+            <div class="amount">
+              Amount Paid: $${amount.toFixed(2)}
+            </div>
+          </div>
+
+          <p>This is an automated receipt. Please keep this email for your records.</p>
+          <p>You can view your complete payment history and download receipts anytime from the parent portal.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXTAUTH_URL}/parent/finances" 
+               style="background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              View Payment History
+            </a>
+          </div>
+        </div>
+        <div class="footer">
+          <p>Advent Hope Academy</p>
+          <p>If you have any questions about this payment, please contact our accounts office.</p>
+          <p style="font-size: 12px; color: #9ca3af;">This is an automated email. Please do not reply.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+    PAYMENT RECEIPT
+    Receipt Number: ${receiptNumber}
+    
+    Student: ${studentName}
+    Amount Paid: $${amount.toFixed(2)}
+    Payment Method: ${paymentMethod}
+    Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}
+    
+    Thank you for your payment. This is an automated receipt.
+    View your payment history: ${process.env.NEXTAUTH_URL}/parent/finances
+    
+    Advent Hope Academy
+  `;
+
+  return sendEmail({ to, subject, html, text });
+}
+

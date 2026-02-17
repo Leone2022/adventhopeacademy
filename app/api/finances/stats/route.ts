@@ -129,9 +129,16 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching financial stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch financial statistics' },
-      { status: 500 }
-    );
+    
+    // Return safe defaults instead of just error
+    return NextResponse.json({
+      totalCollected: 0,
+      outstandingFees: 0,
+      thisMonthCollection: 0,
+      studentsWithBalance: 0,
+      paymentMethods: [],
+      recentTransactions: [],
+      error: 'Failed to fetch some statistics',
+    });
   }
 }

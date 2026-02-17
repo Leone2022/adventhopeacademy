@@ -186,6 +186,7 @@ model Student {
   parents                    ParentStudent[]
   reportCards                ReportCard[]
   account                    StudentAccount?
+  bursaries                  Bursary[]
   currentClass               Class?             @relation("ClassStudents", fields: [currentClassId], references: [id])
   school                     School             @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   transportRoute             TransportRoute?    @relation(fields: [transportRouteId], references: [id])
@@ -514,6 +515,7 @@ model FeeStructure {
   name           String
   feeType        String
   curriculum     Curriculum?
+  studentType    StudentType   @default(BOTH)
   amount         Decimal       @db.Decimal(10, 2)
   dueDate        DateTime?
   lateFee        Decimal?      @db.Decimal(10, 2)
@@ -639,11 +641,36 @@ model Payment {
   updatedAt       DateTime      @updatedAt
   parent          Parent?       @relation(fields: [parentId], references: [id])
   transaction     Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  gatewayTransaction PaymentGatewayTransaction?
 
   @@index([receiptNumber])
   @@index([parentId, createdAt])
   @@index([status])
   @@map("payments")
+}
+
+model PaymentGatewayTransaction {
+  id              String                    @id @default(cuid())
+  paymentId       String                    @unique
+  gateway         PaymentGateway
+  gatewayRef      String?
+  amount          Decimal                   @db.Decimal(10, 2)
+  currency        String                    @default("USD")
+  status          PaymentGatewayStatus      @default(PENDING)
+  initiatedAt     DateTime                  @default(now())
+  completedAt     DateTime?
+  failedAt        DateTime?
+  metadata        Json?
+  errorMessage    String?
+  callbackUrl     String?
+  returnUrl       String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  payment         Payment                   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([gateway, status])
+  @@index([gatewayRef])
+  @@map("payment_gateway_transactions")
 }
 
 model PaymentPlan {
@@ -1088,4 +1115,52 @@ enum ApplicationStatus {
   WAITLISTED
   ENROLLED
   WITHDRAWN
+}
+
+enum PaymentGateway {
+  STRIPE
+  PAYPAL
+  PAYNOW
+  FLUTTERWAVE
+  PAYSTACK
+  MANUAL
+}
+
+enum PaymentGatewayStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+}
+
+enum StudentType {
+  DAY_SCHOLAR
+  BOARDER
+  BOTH
+}
+
+model Bursary {
+  id               String    @id @default(cuid())
+  studentId        String
+  appliedBy        String
+  percentage       Decimal   @db.Decimal(5, 2)
+  reason           String
+  notes            String?
+  academicYearId   String?
+  termId           String?
+  startDate        DateTime  @default(now())
+  endDate          DateTime?
+  isActive         Boolean   @default(true)
+  approvedBy       String?
+  approvedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, isActive])
+  @@index([academicYearId])
+  @@map("bursaries")
 }

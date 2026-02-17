@@ -115,15 +115,29 @@ export default function StudentsListClient({ students }: StudentsListClientProps
   // Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF()
+    const margin = 14
+    const pageWidth = doc.internal.pageSize.getWidth()
 
-    // Title
-    doc.setFontSize(18)
-    doc.text("Advent Hope Academy - Student List", 14, 20)
+    // School header
+    doc.setFontSize(20)
+    doc.setFont("helvetica", "bold")
+    doc.text("Advent Hope Academy", margin, 18)
 
-    // Date
-    doc.setFontSize(10)
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28)
-    doc.text(`Total Students: ${filteredStudents.length}`, 14, 34)
+    doc.setFontSize(13)
+    doc.setFont("helvetica", "normal")
+    doc.text("Student List Report", margin, 26)
+
+    // Divider
+    doc.setDrawColor(59, 130, 246)
+    doc.setLineWidth(0.5)
+    doc.line(margin, 30, pageWidth - margin, 30)
+
+    // Date & stats
+    doc.setFontSize(9)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`, margin, 36)
+    doc.text(`Total Students: ${filteredStudents.length}`, margin, 41)
+    doc.setTextColor(0, 0, 0)
 
     // Table
     const tableData = filteredStudents.map((student) => [
@@ -140,9 +154,18 @@ export default function StudentsListClient({ students }: StudentsListClientProps
     autoTable(doc, {
       head: [["Student #", "Name", "Gender", "DOB", "Class", "Status", "Email", "Phone"]],
       body: tableData,
-      startY: 40,
+      startY: 46,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [59, 130, 246] },
+      didDrawPage: (data) => {
+        const pageHeight = doc.internal.pageSize.getHeight()
+        const pageCount = (doc as any).internal.pages.length - 1
+        doc.setFontSize(8)
+        doc.setTextColor(150, 150, 150)
+        doc.text("Advent Hope Academy - Confidential", margin, pageHeight - 5)
+        doc.text(`Page ${data.pageNumber} of ${pageCount}`, pageWidth - margin, pageHeight - 5, { align: "right" })
+        doc.setTextColor(0, 0, 0)
+      },
     })
 
     doc.save(`students_${new Date().toISOString().split("T")[0]}.pdf`)

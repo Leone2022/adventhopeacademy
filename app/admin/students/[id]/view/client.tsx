@@ -106,18 +106,31 @@ export default function StudentViewClient({ student }: StudentViewClientProps) {
   // Export individual student data to PDF
   const exportToPDF = () => {
     const doc = new jsPDF()
+    const margin = 14
+    const pageWidth = doc.internal.pageSize.getWidth()
 
-    // Header
+    // School header
     doc.setFontSize(20)
-    doc.text("Student Record", 14, 20)
+    doc.setFont("helvetica", "bold")
+    doc.text("Advent Hope Academy", margin, 18)
 
-    doc.setFontSize(10)
-    doc.text(`${student.school.name}`, 14, 28)
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 34)
+    doc.setFontSize(13)
+    doc.setFont("helvetica", "normal")
+    doc.text("Student Record", margin, 26)
+
+    // Divider
+    doc.setDrawColor(59, 130, 246)
+    doc.setLineWidth(0.5)
+    doc.line(margin, 30, pageWidth - margin, 30)
+
+    doc.setFontSize(9)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`, margin, 36)
+    doc.setTextColor(0, 0, 0)
 
     // Student Information
     doc.setFontSize(14)
-    doc.text("Personal Information", 14, 45)
+    doc.text("Personal Information", margin, 47)
 
     const personalData = [
       ["Student Number", student.studentNumber],
@@ -137,7 +150,7 @@ export default function StudentViewClient({ student }: StudentViewClientProps) {
 
     autoTable(doc, {
       body: personalData,
-      startY: 50,
+      startY: 52,
       theme: "grid",
       styles: { fontSize: 9 },
     })
@@ -191,7 +204,7 @@ export default function StudentViewClient({ student }: StudentViewClientProps) {
       doc.text("Financial Information", 14, finalY)
 
       const accountData = [
-        ["Current Balance", `$${student.account.balance.toFixed(2)}`],
+        ["Current Balance", `$${Number(student.account.balance).toFixed(2)}`],
         [
           "Last Payment Date",
           student.account.lastPaymentDate
@@ -212,6 +225,18 @@ export default function StudentViewClient({ student }: StudentViewClientProps) {
         theme: "grid",
         styles: { fontSize: 9 },
       })
+    }
+
+    // Add footer to all pages
+    const totalPages = (doc as any).internal.pages.length - 1
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      const pageHeight = doc.internal.pageSize.getHeight()
+      doc.setFontSize(8)
+      doc.setTextColor(150, 150, 150)
+      doc.text("Advent Hope Academy - Confidential", margin, pageHeight - 5)
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 5, { align: "right" })
+      doc.setTextColor(0, 0, 0)
     }
 
     doc.save(`student_${student.studentNumber}_${new Date().toISOString().split("T")[0]}.pdf`)
@@ -847,7 +872,7 @@ export default function StudentViewClient({ student }: StudentViewClientProps) {
                       <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                         <label className="text-sm text-slate-600">Current Balance</label>
                         <p className="text-2xl font-bold text-slate-800 mt-1">
-                          ${student.account.balance.toFixed(2)}
+                          ${Number(student.account.balance).toFixed(2)}
                         </p>
                       </div>
 

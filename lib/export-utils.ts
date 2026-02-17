@@ -107,7 +107,8 @@ export async function exportToExcel(
 
   // Add summary sheet
   const summaryData = [
-    ['Export Summary'],
+    ['Advent Hope Academy'],
+    ['Student Export Summary'],
     [],
     ['Total Students', students.length],
     ['Export Date', new Date().toLocaleDateString()],
@@ -159,21 +160,32 @@ export async function exportToPDF(
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 10;
   const footerY = pageHeight - margin;
-  let currentY = margin + 15;
+  let currentY = margin + 30;
 
-  // Add header
-  doc.setFontSize(18);
-  doc.text('Student List Report', margin, margin + 5);
+  // Add header with school branding
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Advent Hope Academy', margin, margin + 6);
 
-  doc.setFontSize(10);
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, margin + 12);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Student List Report', margin, margin + 13);
+
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`, margin, margin + 19);
 
   // Summary stats
-  doc.setFontSize(9);
   const zimsecCount = students.filter(s => s.curriculum === 'ZIMSEC').length;
   const cambridgeCount = students.filter(s => s.curriculum === 'CAMBRIDGE').length;
 
-  doc.text(`Total Students: ${students.length} | ZIMSEC: ${zimsecCount} | Cambridge: ${cambridgeCount}`, margin, margin + 18);
+  doc.text(`Total Students: ${students.length} | ZIMSEC: ${zimsecCount} | Cambridge: ${cambridgeCount}`, margin, margin + 24);
+  doc.setTextColor(0, 0, 0);
+
+  // Divider line
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.5);
+  doc.line(margin, margin + 27, pageWidth - margin, margin + 27);
 
   // Prepare table data
   const tableData = students.map((student) => [
@@ -207,17 +219,21 @@ export async function exportToPDF(
       fillColor: [245, 245, 245],
     },
     didDrawPage: (data) => {
-      // Add page numbers
       const pageSize = doc.internal.pageSize;
       const pageHeight = pageSize.getHeight();
       const pageCount = (doc as any).internal.pages.length - 1;
+
+      // Footer: school name on left, page number on right
       doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Advent Hope Academy - Confidential', margin, pageHeight - margin / 2);
       doc.text(
         `Page ${data.pageNumber} of ${pageCount}`,
-        pageSize.getWidth() - margin - 10,
+        pageSize.getWidth() - margin,
         pageHeight - margin / 2,
         { align: 'right' }
       );
+      doc.setTextColor(0, 0, 0);
     },
   });
 
@@ -280,6 +296,20 @@ export async function exportToWord(
     sections: [
       {
         children: [
+          // School Name
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Advent Hope Academy',
+                bold: true,
+                size: 36,
+                color: '1E40AF',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 100 },
+          }),
+
           // Title
           new Paragraph({
             text: 'Student List Report',

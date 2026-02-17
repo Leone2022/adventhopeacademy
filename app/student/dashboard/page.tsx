@@ -67,7 +67,7 @@ export default async function StudentDashboardPage() {
       level: student.currentClass.level,
     } : null,
     account: student.account ? {
-      balance: student.account.balance.toNumber(),
+      balance: Number(student.account.balance || 0),
     } : null,
     school: {
       name: student.school.name,

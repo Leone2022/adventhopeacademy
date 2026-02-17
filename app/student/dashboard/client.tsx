@@ -356,7 +356,7 @@ export default function StudentDashboardClient({
                                 : "text-green-600"
                             }`}
                           >
-                            ${Math.abs(student.account.balance).toFixed(2)}
+                            ${Math.abs(Number(student.account.balance)).toFixed(2)}
                             {student.account.balance < 0 && " (Due)"}
                           </p>
                         </div>

@@ -80,7 +80,7 @@ export default async function AdminStudentsPage() {
       : null,
     account: student.account
       ? {
-          balance: student.account.balance.toNumber(),
+          balance: Number(student.account.balance || 0),
         }
       : null,
     parents: student.parents.map((ps) => ({

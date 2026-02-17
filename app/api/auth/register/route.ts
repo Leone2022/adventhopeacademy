@@ -34,47 +34,50 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create user with PARENT role
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        phone,
-        password: hashedPassword,
-        role: "PARENT",
-        schoolId: school.id,
-        isActive: true,
-      },
-    })
-
-    // Create parent profile
-    const parent = await prisma.parent.create({
-      data: {
-        userId: user.id,
-      },
-    })
-
-    // If student number provided, try to link to student
-    if (studentNumber) {
-      const student = await prisma.student.findUnique({
-        where: { studentNumber },
+    // Create user + parent profile + student link atomically
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          role: "PARENT",
+          schoolId: school.id,
+          isActive: true,
+        },
       })
 
-      if (student) {
-        await prisma.parentStudent.create({
-          data: {
-            parentId: parent.id,
-            studentId: student.id,
-            relationship: relationship || "Parent",
-            isPrimary: true,
-          },
+      const parent = await tx.parent.create({
+        data: {
+          userId: user.id,
+        },
+      })
+
+      // If student number provided, try to link to student
+      if (studentNumber) {
+        const student = await tx.student.findUnique({
+          where: { studentNumber },
         })
+
+        if (student) {
+          await tx.parentStudent.create({
+            data: {
+              parentId: parent.id,
+              studentId: student.id,
+              relationship: relationship || "Parent",
+              isPrimary: true,
+            },
+          })
+        }
       }
-    }
+
+      return { user, parent }
+    })
 
     return NextResponse.json({
       message: "Account created successfully",
-      userId: user.id,
+      userId: result.user.id,
     })
   } catch (error) {
     console.error("Registration error:", error)

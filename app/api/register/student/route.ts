@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       },
     })
 
-    await prisma.student.create({
+    const student = await prisma.student.create({
       data: {
         userId: user.id,
         studentNumber: tempStudentNumber,
@@ -63,6 +63,14 @@ export async function POST(request: Request) {
         curriculum: "CAMBRIDGE",
         admissionDate: new Date(),
         parentInfo: JSON.stringify({ name: parentName, phone: parentPhone, email: parentEmail }),
+      },
+    })
+
+    // Create financial account for the student
+    await prisma.studentAccount.create({
+      data: {
+        studentId: student.id,
+        balance: 0,
       },
     })
 
