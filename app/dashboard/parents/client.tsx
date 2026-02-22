@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { Search, Users, Mail, Phone, Filter, Download, CheckCircle2, Edit, Key } from "lucide-react"
+import { Search, Users, Mail, Phone, Filter, Download, CheckCircle2, Edit, Plus, Trash2, Loader2, X } from "lucide-react"
 
 interface ParentStudent {
   id: string
@@ -33,11 +33,21 @@ interface ParentsListClientProps {
 }
 
 export default function ParentsListClient({ parents }: ParentsListClientProps) {
+  const [parentList, setParentList] = useState<ParentItem[]>(parents)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("ACTIVE")
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [creatingParent, setCreatingParent] = useState(false)
+  const [deletingParentId, setDeletingParentId] = useState<string | null>(null)
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  })
 
   const filtered = useMemo(() => {
-    return parents.filter((p) => {
+    return parentList.filter((p) => {
       const matchesSearch =
         search === "" ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,15 +62,99 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
 
       return matchesSearch && matchesStatus
     })
-  }, [search, statusFilter, parents])
+  }, [search, statusFilter, parentList])
 
   const stats = useMemo(() => {
     return {
-      total: parents.length,
+      total: parentList.length,
       listed: filtered.length,
-      withEmail: parents.filter((p) => p.email).length,
+      withEmail: parentList.filter((p) => p.email).length,
     }
-  }, [parents, filtered])
+  }, [parentList, filtered])
+
+  const handleCreateParent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setNotice(null)
+
+    if (!formData.name.trim() || !formData.email.trim()) {
+      setNotice({ type: "error", message: "Name and email are required." })
+      return
+    }
+
+    setCreatingParent(true)
+    try {
+      const response = await fetch("/api/admin/create-parent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+        }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        setNotice({ type: "error", message: data.error || "Failed to create parent account." })
+        return
+      }
+
+      setParentList((prev) => [
+        {
+          id: data.parentId,
+          applicationNumber: "-",
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || null,
+          status: "ACTIVE",
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          city: null,
+          occupation: null,
+          employer: null,
+          students: [],
+        },
+        ...prev,
+      ])
+
+      setNotice({
+        type: "success",
+        message: `Parent created successfully. Temporary password: ${data.tempPassword}`,
+      })
+      setShowAddModal(false)
+      setFormData({ name: "", email: "", phone: "" })
+    } catch (error) {
+      setNotice({ type: "error", message: "Failed to create parent account." })
+    } finally {
+      setCreatingParent(false)
+    }
+  }
+
+  const handleDeleteParent = async (parent: ParentItem) => {
+    const confirmed = window.confirm(`Delete parent ${parent.name}? This action cannot be undone.`)
+    if (!confirmed) return
+
+    setNotice(null)
+    setDeletingParentId(parent.id)
+    try {
+      const response = await fetch(`/api/admin/parents/${parent.id}`, {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        setNotice({ type: "error", message: data.error || "Failed to delete parent." })
+        return
+      }
+
+      setParentList((prev) => prev.filter((p) => p.id !== parent.id))
+      setNotice({ type: "success", message: `${parent.name} deleted successfully.` })
+    } catch (error) {
+      setNotice({ type: "error", message: "Failed to delete parent." })
+    } finally {
+      setDeletingParentId(null)
+    }
+  }
 
   const exportToCSV = () => {
     const csv = [
@@ -94,14 +188,35 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
           <h1 className="text-2xl font-bold text-slate-800">Approved Parents</h1>
           <p className="text-slate-600 mt-1">Manage and view approved parent accounts</p>
         </div>
-        <button
-          onClick={exportToCSV}
-          className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm hover:shadow"
-        >
-          <Download className="h-4 w-4" />
-          Export CSV
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm"
+          >
+            <Plus className="h-4 w-4" />
+            Add Parent
+          </button>
+          <button
+            onClick={exportToCSV}
+            className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 font-medium shadow-sm hover:shadow"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
+
+      {notice && (
+        <div
+          className={`rounded-xl border px-4 py-3 text-sm ${
+            notice.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+              : "bg-red-50 border-red-200 text-red-700"
+          }`}
+        >
+          {notice.message}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid sm:grid-cols-3 gap-4">
@@ -220,6 +335,18 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
                       <Edit className="h-4 w-4" />
                       Edit
                     </Link>
+                    <button
+                      onClick={() => handleDeleteParent(parent)}
+                      disabled={deletingParentId === parent.id}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-rose-100 text-rose-700 rounded-lg hover:bg-rose-200 transition text-sm font-medium disabled:opacity-60"
+                    >
+                      {deletingParentId === parent.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Delete
+                    </button>
                   </div>
                   <Link
                     href={`/dashboard/students?parent=${parent.id}`}
@@ -233,6 +360,75 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
           ))
         )}
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-800">Add Parent</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-slate-500 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateParent} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Parent full name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="parent@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.phone}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="+263..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingParent}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60 inline-flex items-center gap-2"
+                >
+                  {creatingParent ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Create Parent
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

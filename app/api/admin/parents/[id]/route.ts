@@ -185,3 +185,69 @@ export async function POST(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
+// DELETE parent account
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || !["SUPER_ADMIN", "SCHOOL_ADMIN", "REGISTRAR"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const parentId = params.id
+
+    const parent = await prisma.parent.findUnique({
+      where: { id: parentId },
+      select: {
+        id: true,
+        userId: true,
+        user: {
+          select: {
+            schoolId: true,
+          },
+        },
+        _count: {
+          select: {
+            payments: true,
+          },
+        },
+      },
+    })
+
+    if (!parent) {
+      return NextResponse.json({ error: "Parent not found" }, { status: 404 })
+    }
+
+    const isSuperAdmin = session.user.role === "SUPER_ADMIN"
+    if (!isSuperAdmin && session.user.schoolId && parent.user.schoolId !== session.user.schoolId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    if (parent._count.payments > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete parent with payment records. Remove payment references first." },
+        { status: 400 }
+      )
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.message.updateMany({
+        where: { parentId },
+        data: { parentId: null },
+      })
+
+      await tx.user.delete({
+        where: { id: parent.userId },
+      })
+    })
+
+    return NextResponse.json({ message: "Parent deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting parent:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
