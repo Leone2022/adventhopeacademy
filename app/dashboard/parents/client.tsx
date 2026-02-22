@@ -403,8 +403,9 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-xl p-6">
+        <div className="fixed inset-0 z-50 bg-black/50 overflow-y-auto">
+          <div className="min-h-full flex items-start justify-center p-4 sm:p-6">
+            <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-800">Add Parent</h2>
               <button
@@ -415,7 +416,7 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
               </button>
             </div>
 
-            <form onSubmit={handleCreateParent} className="space-y-4">
+            <form onSubmit={handleCreateParent} className="space-y-4 pb-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">First Name</label>
@@ -538,6 +539,7 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
