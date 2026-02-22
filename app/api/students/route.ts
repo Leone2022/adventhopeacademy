@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { generateNextStudentNumber } from '@/lib/student-number';
 import { Prisma } from '@prisma/client';
 
 // GET /api/students - List all students with filters
@@ -155,22 +156,7 @@ export async function POST(request: NextRequest) {
     let studentNumber = body.studentNumber?.trim();
     
     if (!studentNumber) {
-      // Auto-generate if not provided (fallback)
-      const year = new Date().getFullYear();
-      const lastStudent = await prisma.student.findFirst({
-        where: {
-          schoolId,
-          studentNumber: { startsWith: `AHA${year}` },
-        },
-        orderBy: { studentNumber: 'desc' },
-      });
-
-      let sequence = 1;
-      if (lastStudent) {
-        const lastSeq = parseInt(lastStudent.studentNumber.slice(-4));
-        sequence = lastSeq + 1;
-      }
-      studentNumber = `AHA${year}${sequence.toString().padStart(4, '0')}`;
+      studentNumber = await generateNextStudentNumber();
     } else {
       // Check if student number already exists
       const existingStudent = await prisma.student.findFirst({

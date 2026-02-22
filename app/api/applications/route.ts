@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has admin or staff role
-    const allowedRoles = ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'ACADEMIC_STAFF', 'ADMIN_STAFF'];
+    const allowedRoles = ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'REGISTRAR', 'TEACHER'];
     if (!allowedRoles.includes(session.user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

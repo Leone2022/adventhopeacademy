@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generateSecurePassword, hashPassword, sanitizeEmail } from "@/lib/security"
+import { generateNextStudentNumber } from "@/lib/student-number"
 import { sendWelcomeEmail } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
@@ -49,27 +50,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate student number
-    const currentYear = new Date().getFullYear()
-    const lastStudent = await prisma.student.findFirst({
-      where: {
-        schoolId: session.user.schoolId!,
-        studentNumber: {
-          startsWith: `STU${currentYear}`,
-        },
-      },
-      orderBy: {
-        studentNumber: "desc",
-      },
-    })
-
-    let sequence = 1
-    if (lastStudent) {
-      const lastSequence = parseInt(lastStudent.studentNumber.slice(-3))
-      sequence = lastSequence + 1
-    }
-
-    const studentNumber = `STU${currentYear}${sequence.toString().padStart(3, "0")}`
+    const studentNumber = await generateNextStudentNumber()
 
     // Check if student number already exists (shouldn't happen, but be safe)
     const existingStudent = await prisma.student.findUnique({

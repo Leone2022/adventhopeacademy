@@ -1,13 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const allowedRoles = ["SUPER_ADMIN", "SCHOOL_ADMIN"]
+    if (!allowedRoles.includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const role = searchParams.get("role")
 
     // Fetch pending registrations
     const where: any = { status: "PENDING" }
+    if (session.user.schoolId) {
+      where.schoolId = session.user.schoolId
+    }
     if (role && role !== "ALL") {
       where.role = role
     }

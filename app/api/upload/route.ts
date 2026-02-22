@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-import { existsSync } from 'fs';
+import { cloudinary, getCloudinaryPublicIdFromUrl, isCloudinaryConfigured } from '@/lib/cloudinary';
 
 // Allowed file types
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -17,12 +15,30 @@ const ALLOWED_DOCUMENT_TYPES = [
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
+function getUploadFolder(type: string): string {
+  switch (type) {
+    case 'photo':
+      return 'adventhope/photos';
+    case 'result':
+      return 'adventhope/results';
+    default:
+      return 'adventhope/documents';
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!isCloudinaryConfigured) {
+      return NextResponse.json(
+        { error: 'Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.' },
+        { status: 500 }
+      );
     }
 
     const formData = await request.formData();
@@ -54,32 +70,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Create upload directory structure
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', type === 'photo' ? 'photos' : type === 'result' ? 'results' : 'documents');
-    
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const ext = path.extname(file.name);
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    const filename = `${entityId || 'file'}_${timestamp}_${randomStr}${ext}`;
-    const filepath = path.join(uploadDir, filename);
-
-    // Convert file to buffer and save
+    // Convert file to buffer and upload to Cloudinary
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    const base64 = buffer.toString('base64');
+    const dataUri = `data:${file.type};base64,${base64}`;
 
-    // Generate public URL
-    const publicUrl = `/uploads/${type === 'photo' ? 'photos' : type === 'result' ? 'results' : 'documents'}/${filename}`;
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const uploadResult = await cloudinary.uploader.upload(dataUri, {
+      folder: getUploadFolder(type),
+      public_id: `${entityId || 'file'}_${timestamp}_${randomStr}`,
+      resource_type: type === 'photo' ? 'image' : 'auto',
+      overwrite: false,
+    });
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
-      filename: filename,
+      url: uploadResult.secure_url,
+      filename: uploadResult.public_id,
+      publicId: uploadResult.public_id,
       originalName: documentName || file.name,
       type: type,
       size: file.size,
@@ -100,24 +110,37 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!isCloudinaryConfigured) {
+      return NextResponse.json(
+        { error: 'Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.' },
+        { status: 500 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const fileUrl = searchParams.get('url');
+    const publicIdFromParam = searchParams.get('publicId');
 
-    if (!fileUrl) {
-      return NextResponse.json({ error: 'No file URL provided' }, { status: 400 });
+    if (!fileUrl && !publicIdFromParam) {
+      return NextResponse.json({ error: 'No file URL or publicId provided' }, { status: 400 });
     }
 
-    // Security: Only allow deleting files from uploads directory
-    if (!fileUrl.startsWith('/uploads/')) {
-      return NextResponse.json({ error: 'Invalid file path' }, { status: 400 });
+    const publicId = publicIdFromParam || (fileUrl ? getCloudinaryPublicIdFromUrl(fileUrl) : null);
+
+    if (!publicId) {
+      return NextResponse.json({ error: 'Invalid Cloudinary file reference' }, { status: 400 });
     }
 
-    const filepath = path.join(process.cwd(), 'public', fileUrl);
-    
-    // Check if file exists and delete
-    if (existsSync(filepath)) {
-      const { unlink } = await import('fs/promises');
-      await unlink(filepath);
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+      invalidate: true,
+    });
+
+    if (result.result === 'not found') {
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: 'raw',
+        invalidate: true,
+      });
     }
 
     return NextResponse.json({ success: true });

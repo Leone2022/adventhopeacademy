@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hashPassword, generateVerificationToken } from "@/lib/security"
+import { generateNextStudentNumber } from "@/lib/student-number"
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const hashedPassword = await hashPassword(password)
     const verificationToken = generateVerificationToken()
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    const tempStudentNumber = `TEMP${Date.now().toString().slice(-8)}`
+    const tempStudentNumber = await generateNextStudentNumber()
     const fullName = `${firstName} ${lastName}`
 
     const user = await prisma.user.create({

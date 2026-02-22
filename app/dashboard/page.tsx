@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { roleLabels } from "@/lib/roles"
 import {
@@ -27,9 +27,23 @@ import {
   Activity
 } from "lucide-react"
 
+type DashboardStats = {
+  pendingApprovals: number
+  totalStudents: number
+  totalStaff: number
+  activeClasses: number
+  feeCollectionRate: number
+  upcomingEvents: Array<{
+    id: string
+    title: string
+    date: string
+  }>
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
     // Redirect parents to parent portal
@@ -37,6 +51,27 @@ export default function DashboardPage() {
       router.push("/parent")
     }
   }, [session, router])
+
+  useEffect(() => {
+    if (!session?.user || session.user.role === "PARENT") {
+      return
+    }
+
+    const loadStats = async () => {
+      try {
+        const response = await fetch("/api/dashboard/stats", { cache: "no-store" })
+        if (!response.ok) {
+          return
+        }
+        const data = await response.json()
+        setStats(data)
+      } catch (error) {
+        console.error("Failed to load dashboard stats:", error)
+      }
+    }
+
+    loadStats()
+  }, [session?.user])
 
   if (status === "loading") {
     return (
@@ -61,54 +96,54 @@ export default function DashboardPage() {
   const statsCards = [
     {
       label: "Pending Approvals",
-      value: "New",
+      value: stats ? String(stats.pendingApprovals) : "...",
       icon: UserPlus,
       iconBg: "bg-indigo-50",
       iconColor: "text-indigo-600",
-      trend: "Review",
+      trend: "Live",
       trendUp: true,
       trendLabel: "registrations waiting",
       link: "/admin/pending-registrations"
     },
     {
       label: "Total Students",
-      value: "500+",
+      value: stats ? String(stats.totalStudents) : "...",
       icon: Users,
       iconBg: "bg-purple-50",
       iconColor: "text-purple-600",
-      trend: "+12%",
+      trend: "Live",
       trendUp: true,
-      trendLabel: "from last term"
+      trendLabel: "current count"
     },
     {
       label: "Total Staff",
-      value: "50+",
+      value: stats ? String(stats.totalStaff) : "...",
       icon: Briefcase,
       iconBg: "bg-teal-50",
       iconColor: "text-teal-600",
-      trend: "+3",
+      trend: "Live",
       trendUp: true,
-      trendLabel: "new this month"
+      trendLabel: "active staff"
     },
     {
       label: "Active Classes",
-      value: "24",
+      value: stats ? String(stats.activeClasses) : "...",
       icon: BookOpen,
       iconBg: "bg-cyan-50",
       iconColor: "text-cyan-600",
-      trend: "Full",
+      trend: "Live",
       trendUp: true,
-      trendLabel: "capacity"
+      trendLabel: "running now"
     },
     {
       label: "Fee Collection",
-      value: "85%",
+      value: stats ? `${stats.feeCollectionRate}%` : "...",
       icon: TrendingUp,
       iconBg: "bg-pink-50",
       iconColor: "text-pink-600",
-      trend: "+5%",
+      trend: "Live",
       trendUp: true,
-      trendLabel: "from last month"
+      trendLabel: "payments vs charges"
     }
   ]
 
@@ -198,24 +233,28 @@ export default function DashboardPage() {
     }
   ]
 
-  // Upcoming events
-  const upcomingEvents = [
-    {
-      title: "Staff Meeting",
-      date: "Jan 2, 2025",
-      time: "09:00 AM"
-    },
-    {
-      title: "Term 1 Opens",
-      date: "Jan 6, 2025",
-      time: "08:00 AM"
-    },
-    {
-      title: "Parent-Teacher Conference",
-      date: "Jan 15, 2025",
-      time: "02:00 PM"
+  const upcomingEvents = useMemo(() => {
+    if (!stats?.upcomingEvents?.length) {
+      return []
     }
-  ]
+
+    return stats.upcomingEvents.map((event) => {
+      const eventDate = new Date(event.date)
+      return {
+        id: event.id,
+        title: event.title,
+        date: eventDate.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        time: eventDate.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }
+    })
+  }, [stats])
 
   const filteredQuickActions = quickActions.filter(action => 
     action.roles.includes(session.user.role)
@@ -412,18 +451,30 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="p-5 space-y-4">
-            {upcomingEvents.map((event, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-5 h-5 text-blue-600" />
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <div key={event.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-slate-800 font-medium text-sm">{event.title}</p>
+                    <p className="text-slate-500 text-xs mt-0.5">{event.date}</p>
+                    <p className="text-slate-400 text-xs">{event.time}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50">
+                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-slate-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-slate-800 font-medium text-sm">{event.title}</p>
-                  <p className="text-slate-500 text-xs mt-0.5">{event.date}</p>
-                  <p className="text-slate-400 text-xs">{event.time}</p>
+                  <p className="text-slate-700 font-medium text-sm">No upcoming events</p>
+                  <p className="text-slate-500 text-xs mt-0.5">Add terms in Academic settings to populate this list.</p>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

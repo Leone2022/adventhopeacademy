@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateSecurePassword, hashPassword, sanitizeEmail } from '@/lib/security';
+import { generateNextStudentNumber } from '@/lib/student-number';
 
 // POST /api/applications/[id]/convert - Convert approved application to student
 export async function POST(
@@ -41,21 +42,7 @@ export async function POST(
       return NextResponse.json({ error: 'Only approved applications can be converted' }, { status: 400 });
     }
 
-    // Generate student number
-    const year = new Date().getFullYear();
-    const lastStudent = await prisma.student.findFirst({
-      where: {
-        studentNumber: { startsWith: `STU${year}` },
-      },
-      orderBy: { studentNumber: 'desc' },
-    });
-
-    let sequence = 1;
-    if (lastStudent) {
-      const lastSeq = parseInt(lastStudent.studentNumber.slice(-5));
-      sequence = lastSeq + 1;
-    }
-    const studentNumber = `STU${year}${sequence.toString().padStart(5, '0')}`;
+    const studentNumber = await generateNextStudentNumber();
 
     // Generate a temporary password for the student's user account
     const tempPassword = generateSecurePassword(12);

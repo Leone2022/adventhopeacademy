@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendApprovalEmailWithResetLink } from "@/lib/email"
 import { generateResetToken, hashToken } from "@/lib/security"
+import { generateNextStudentNumber, isStandardStudentNumber } from "@/lib/student-number"
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const allowedRoles = ["SUPER_ADMIN", "SCHOOL_ADMIN"]
+    if (!allowedRoles.includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     const { userIds } = await request.json()
 
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
@@ -54,12 +68,16 @@ export async function POST(request: NextRequest) {
         // Generate student number if needed
         let studentNumber: string | undefined
         if (user.role === "STUDENT" && user.studentProfile) {
-          const year = new Date().getFullYear()
-          studentNumber = `ADV${year}${String(Date.now()).slice(-6)}`
-          await prisma.student.update({
-            where: { id: user.studentProfile.id },
-            data: { studentNumber },
-          })
+          const existingStudentNumber = user.studentProfile.studentNumber
+          if (!isStandardStudentNumber(existingStudentNumber)) {
+            studentNumber = await generateNextStudentNumber()
+            await prisma.student.update({
+              where: { id: user.studentProfile.id },
+              data: { studentNumber },
+            })
+          } else {
+            studentNumber = existingStudentNumber
+          }
         }
 
         // Build reset URL
