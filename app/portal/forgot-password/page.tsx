@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import {
   Mail,
   ArrowLeft,
@@ -16,11 +17,25 @@ import {
 type RecoveryMethod = "email" | "phone" | "studentNumber"
 
 export default function ForgotPasswordPage() {
+  const searchParams = useSearchParams()
   const [recoveryMethod, setRecoveryMethod] = useState<RecoveryMethod>("email")
   const [identifier, setIdentifier] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    const queryIdentifier = searchParams.get("identifier")?.trim()
+    const queryMethod = searchParams.get("method")
+
+    if (queryMethod === "email" || queryMethod === "phone" || queryMethod === "studentNumber") {
+      setRecoveryMethod(queryMethod)
+    }
+
+    if (queryIdentifier) {
+      setIdentifier(queryIdentifier)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

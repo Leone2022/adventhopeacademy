@@ -263,7 +263,13 @@ export default function LoginPage() {
                   <span className="ml-2 text-sm text-slate-600">Remember me</span>
                 </label>
                 <Link 
-                  href="/auth/forgot-password" 
+                  href={{
+                    pathname: "/portal/forgot-password",
+                    query: {
+                      ...(email ? { identifier: email } : {}),
+                      method: "email",
+                    },
+                  }} 
                   className="text-sm text-[#3b82f6] hover:text-[#2563eb] font-medium transition-colors"
                 >
                   Forgot password?
