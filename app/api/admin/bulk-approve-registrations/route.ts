@@ -90,13 +90,18 @@ export async function POST(request: NextRequest) {
         }
 
         // Send approval email with secure reset link
-        await sendApprovalEmailWithResetLink(
+        const emailSent = await sendApprovalEmailWithResetLink(
           user.email,
           user.name,
           user.role as "PARENT" | "STUDENT",
           resetUrl,
           { studentNumber, applicationNumber }
         )
+
+        if (!emailSent) {
+          failedUsers.push({ userId, reason: "Approval email delivery failed" })
+          continue
+        }
 
         approvedUsers.push({
           id: updatedUser.id,

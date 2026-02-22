@@ -14,6 +14,18 @@ interface EmailOptions {
   text?: string
 }
 
+function getGmailFromAddress(): string {
+  const emailUser = process.env.EMAIL_USER?.trim()
+  const configuredFrom = process.env.EMAIL_FROM?.trim()
+
+  if (!emailUser) return configuredFrom || ""
+  if (!configuredFrom) return emailUser
+
+  const nameMatch = configuredFrom.match(/^\s*([^<]+)\s*</)
+  const displayName = nameMatch?.[1]?.trim()
+  return displayName ? `${displayName} <${emailUser}>` : emailUser
+}
+
 /**
  * Create SMTP transporter for Gmail
  */
@@ -41,22 +53,20 @@ async function sendEmail(options: EmailOptions): Promise<boolean> {
     const transporter = createTransporter()
 
     if (!transporter) {
-      // Fallback to console logging if credentials not configured
-      console.log("📧 EMAIL (Console Fallback):")
-      console.log("To:", options.to)
-      console.log("Subject:", options.subject)
-      console.log("Body:", options.text || options.html)
-      console.log("---")
-      return true
+      console.error("❌ Email transport unavailable: set EMAIL_USER and EMAIL_PASSWORD")
+      return false
     }
+
+    const fromAddress = getGmailFromAddress()
 
     // Send email via Gmail SMTP
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: fromAddress,
       to: options.to,
       subject: options.subject,
       html: options.html,
       text: options.text,
+      replyTo: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     })
 
     console.log("✅ Email sent successfully:", info.messageId)
