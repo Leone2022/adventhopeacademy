@@ -414,7 +414,7 @@ export default function ParentFinancesClient({ parentName, children }: Props) {
                       className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
                       <GraduationCap className="w-4 h-4" />
-                      Add Your Child
+                      View Linking Instructions
                     </Link>
                   </div>
                 ) : (

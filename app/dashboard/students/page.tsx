@@ -9,15 +9,12 @@ import {
   Plus,
   Filter,
   Download,
-  MoreVertical,
   Eye,
   Edit,
   Trash2,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
-  Phone,
-  Mail,
   MapPin,
   AlertCircle,
   CheckCircle,
@@ -26,6 +23,7 @@ import {
   FileText,
   BarChart3,
   File,
+  Link2,
 } from 'lucide-react';
 
 interface Student {
@@ -69,6 +67,15 @@ interface Pagination {
   totalPages: number;
 }
 
+interface ParentOption {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  applicationNumber?: string | null;
+  linkedStudents: number;
+}
+
 const statusColors: Record<string, { bg: string; text: string; icon: any }> = {
   ACTIVE: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: CheckCircle },
   GRADUATED: { bg: 'bg-blue-100', text: 'text-blue-700', icon: GraduationCap },
@@ -95,9 +102,21 @@ export default function StudentsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewAll, setViewAll] = useState(false);
   const [stats, setStats] = useState({ total: 0, zimsec: 0, cambridge: 0, active: 0, boarding: 0, dayScholar: 0 });
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; studentId: string | null; studentName: string }>({ show: false, studentId: null, studentName: '' });
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkTargetStudent, setLinkTargetStudent] = useState<Student | null>(null);
+  const [parents, setParents] = useState<ParentOption[]>([]);
+  const [parentSearch, setParentSearch] = useState('');
+  const [selectedParentId, setSelectedParentId] = useState('');
+  const [relationship, setRelationship] = useState('Parent');
+  const [loadingParents, setLoadingParents] = useState(false);
+  const [linkingParent, setLinkingParent] = useState(false);
+  const [uiNotice, setUiNotice] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+
+  const showNotice = (type: 'success' | 'error' | 'info', text: string) => {
+    setUiNotice({ type, text });
+  };
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -147,6 +166,73 @@ export default function StudentsPage() {
     }
   };
 
+  const fetchParentsForLinking = async () => {
+    setLoadingParents(true);
+    try {
+      const response = await fetch('/api/admin/parents');
+      const data = await response.json();
+      if (response.ok) {
+        setParents(data || []);
+      } else {
+        showNotice('error', data.error || 'Failed to fetch parents list');
+      }
+    } catch (error) {
+      console.error('Error fetching parents:', error);
+      showNotice('error', 'Failed to fetch parents list');
+    } finally {
+      setLoadingParents(false);
+    }
+  };
+
+  const openLinkModal = async (student: Student) => {
+    setLinkTargetStudent(student);
+    setSelectedParentId('');
+    setParentSearch('');
+    setRelationship('Parent');
+    setUiNotice(null);
+    setShowLinkModal(true);
+    await fetchParentsForLinking();
+  };
+
+  const handleLinkParentToStudent = async () => {
+    if (!linkTargetStudent || !selectedParentId) {
+      showNotice('error', 'Please select a parent first');
+      return;
+    }
+
+    setLinkingParent(true);
+    try {
+      const response = await fetch('/api/parent/link-student', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentId: linkTargetStudent.id,
+          parentId: selectedParentId,
+          relationship,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        showNotice('error', data.error || 'Failed to link parent to student');
+        return;
+      }
+
+      setShowLinkModal(false);
+      setLinkTargetStudent(null);
+      setSelectedParentId('');
+      showNotice('success', 'Parent linked successfully');
+      fetchStudents();
+    } catch (error) {
+      console.error('Error linking parent to student:', error);
+      showNotice('error', 'Failed to link parent to student');
+    } finally {
+      setLinkingParent(false);
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
   }, [pagination.page, searchTerm, statusFilter, curriculumFilter, classFilter, boardingFilter, viewAll]);
@@ -164,13 +250,14 @@ export default function StudentsPage() {
       if (response.ok) {
         setDeleteConfirm({ show: false, studentId: null, studentName: '' });
         fetchStudents(); // Refresh the list
+        showNotice('success', 'Student deleted successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to delete student');
+        showNotice('error', data.error || 'Failed to delete student');
       }
     } catch (error) {
       console.error('Error deleting student:', error);
-      alert('Failed to delete student');
+      showNotice('error', 'Failed to delete student');
     }
   };
 
@@ -196,7 +283,7 @@ export default function StudentsPage() {
       });
 
       if (!allStudents || allStudents.length === 0) {
-        alert('No students to export');
+        showNotice('info', 'No students to export');
         return;
       }
 
@@ -216,7 +303,7 @@ export default function StudentsPage() {
       await exportToWord(allStudents, `students-${label}-${datePart}.docx`);
     } catch (error) {
       console.error(`Error exporting to ${format.toUpperCase()}:`, error);
-      alert(`Failed to export to ${format.toUpperCase()}`);
+      showNotice('error', `Failed to export to ${format.toUpperCase()}`);
     } finally {
       setExporting(false);
     }
@@ -239,6 +326,17 @@ export default function StudentsPage() {
       currency: 'USD',
     }).format(amount);
   };
+
+  const filteredParents = parents.filter((parent) => {
+    if (!parentSearch) return true;
+    const query = parentSearch.toLowerCase();
+    return (
+      parent.name.toLowerCase().includes(query) ||
+      parent.email.toLowerCase().includes(query) ||
+      (parent.phone || '').toLowerCase().includes(query) ||
+      (parent.applicationNumber || '').toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -369,6 +467,25 @@ export default function StudentsPage() {
           </Link>
         </div>
       </div>
+
+      {uiNotice && (
+        <div className={`rounded-xl border px-4 py-3 flex items-start justify-between gap-3 ${
+          uiNotice.type === 'success'
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+            : uiNotice.type === 'error'
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : 'bg-blue-50 border-blue-200 text-blue-800'
+        }`}>
+          <p className="text-sm font-medium">{uiNotice.text}</p>
+          <button
+            onClick={() => setUiNotice(null)}
+            className="p-1 rounded hover:bg-white/60"
+            aria-label="Dismiss notification"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Quick Filter Buttons */}
       <div className="flex flex-wrap gap-3">
@@ -745,6 +862,11 @@ export default function StudentsPage() {
                           <p className="text-sm text-slate-500">
                             {student.email || 'No email'}
                           </p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {student.parents && student.parents.length > 0
+                              ? `Linked parents: ${student.parents.length}${student.parents[0]?.parent?.user?.name ? ` • ${student.parents[0].parent.user.name}` : ''}`
+                              : 'No parent linked yet'}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -811,6 +933,13 @@ export default function StudentsPage() {
                         >
                           <FileText className="h-4 w-4" />
                         </Link>
+                        <button
+                          onClick={() => openLinkModal(student)}
+                          className="p-2 text-slate-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95"
+                          title="Link Parent"
+                        >
+                          <Link2 className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => setDeleteConfirm({ show: true, studentId: student.id, studentName: `${student.firstName} ${student.lastName}` })}
                           className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95"
@@ -893,6 +1022,105 @@ export default function StudentsPage() {
                 className="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg active:scale-95"
               >
                 Delete Student
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link Parent Modal */}
+      {showLinkModal && linkTargetStudent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Link Parent to Student</h3>
+                <p className="text-sm text-slate-600">
+                  {linkTargetStudent.firstName} {linkTargetStudent.lastName} ({linkTargetStudent.studentNumber})
+                </p>
+              </div>
+              <button
+                onClick={() => setShowLinkModal(false)}
+                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 flex-1 overflow-y-auto">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Relationship</label>
+                  <select
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  >
+                    <option value="Parent">Parent</option>
+                    <option value="Guardian">Guardian</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Father">Father</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Search Parent</label>
+                  <input
+                    type="text"
+                    value={parentSearch}
+                    onChange={(e) => setParentSearch(e.target.value)}
+                    placeholder="Search by name, email, phone..."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 text-sm font-medium text-slate-700">
+                  Select Parent ({filteredParents.length})
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  {loadingParents ? (
+                    <div className="p-4 text-sm text-slate-500">Loading parents...</div>
+                  ) : filteredParents.length === 0 ? (
+                    <div className="p-4 text-sm text-slate-500">No parents found.</div>
+                  ) : (
+                    filteredParents.map((parent) => (
+                      <label key={parent.id} className="flex items-start gap-3 p-3 hover:bg-slate-50 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="selectedParent"
+                          value={parent.id}
+                          checked={selectedParentId === parent.id}
+                          onChange={(e) => setSelectedParentId(e.target.value)}
+                          className="mt-1"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-medium text-slate-800">{parent.name}</p>
+                          <p className="text-sm text-slate-600">{parent.email}</p>
+                          <p className="text-xs text-slate-500">
+                            {parent.phone || 'No phone'} • Linked students: {parent.linkedStudents}
+                          </p>
+                        </div>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-200">
+              <button
+                onClick={() => setShowLinkModal(false)}
+                className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLinkParentToStudent}
+                disabled={!selectedParentId || linkingParent}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {linkingParent ? 'Linking...' : 'Link Parent'}
               </button>
             </div>
           </div>

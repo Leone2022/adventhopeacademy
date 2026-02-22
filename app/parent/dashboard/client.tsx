@@ -206,14 +206,14 @@ export default function ParentDashboardClient({
                     No Children Linked Yet
                   </h3>
                   <p className="text-sm text-yellow-700 mb-4">
-                    You don&apos;t have any children linked to your account yet.
+                    You don&apos;t have any children linked to your account yet. Linking is done by school administration after verification.
                   </p>
                   <Link
                     href="/portal/add-child"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                   >
                     <GraduationCap className="w-4 h-4" />
-                    Add Your Child
+                    Linking Instructions
                   </Link>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ParentDashboardClient({
                     className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-medium"
                   >
                     <GraduationCap className="w-4 h-4" />
-                    Add Child
+                    Linking Policy
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

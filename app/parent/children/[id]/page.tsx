@@ -75,14 +75,50 @@ export default async function StudentDetailsPage({
       grades: {
         select: {
           id: true,
-          subject: true,
+          subject: {
+            select: {
+              name: true,
+            },
+          },
           score: true,
-          term: true,
-          academicYear: true,
+          term: {
+            select: {
+              name: true,
+            },
+          },
+          academicYear: {
+            select: {
+              name: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
         },
+      },
+      reportCards: {
+        select: {
+          id: true,
+          averagePercentage: true,
+          overallGrade: true,
+          classPosition: true,
+          streamPosition: true,
+          isPublished: true,
+          term: {
+            select: {
+              name: true,
+            },
+          },
+          academicYear: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+        take: 10,
       },
     },
   })

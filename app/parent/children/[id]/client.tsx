@@ -34,6 +34,7 @@ export default function StudentDetailsClient({ student }: StudentDetailsProps) {
 
   // Calculate average grade
   const grades = student.grades || []
+  const reportCards = student.reportCards || []
   const averageGrade = grades.length > 0
     ? (grades.reduce((sum: number, g: any) => sum + (parseFloat(g.score) || 0), 0) / grades.length).toFixed(1)
     : "N/A"
@@ -256,9 +257,9 @@ export default function StudentDetailsClient({ student }: StudentDetailsProps) {
                       className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                     >
                       <div>
-                        <p className="text-sm font-medium text-slate-800">{grade.subject}</p>
+                        <p className="text-sm font-medium text-slate-800">{grade.subject?.name || "Subject"}</p>
                         <p className="text-xs text-slate-500">
-                          {grade.academicYear} - {grade.term}
+                          {grade.academicYear?.name || "Academic Year"} - {grade.term?.name || "Term"}
                         </p>
                       </div>
                       <span className="text-sm font-bold text-blue-600">
@@ -297,6 +298,37 @@ export default function StudentDetailsClient({ student }: StudentDetailsProps) {
                         )}
                         {record.status}
                       </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Report Cards */}
+            {reportCards.length > 0 && (
+              <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">Report Cards</h2>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {reportCards.map((report: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <div>
+                        <p className="text-sm font-medium text-slate-800">
+                          {report.academicYear?.name || "Academic Year"} - {report.term?.name || "Term"}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Grade: {report.overallGrade || "N/A"}
+                          {report.classPosition ? ` • Class Position: ${report.classPosition}` : ""}
+                          {report.streamPosition ? ` • Stream Position: ${report.streamPosition}` : ""}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-blue-600">
+                          {report.averagePercentage != null ? `${Number(report.averagePercentage).toFixed(1)}%` : "N/A"}
+                        </p>
+                        <p className={`text-xs font-medium ${report.isPublished ? "text-emerald-600" : "text-amber-600"}`}>
+                          {report.isPublished ? "Published" : "Draft"}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
