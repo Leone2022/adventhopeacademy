@@ -52,8 +52,12 @@ export default function PortalLoginPage() {
 
       if (result?.error) {
         // Parse error message
-        if (result.error === "inactive_account") {
-          setError("Your account is not yet approved by the admin. Please contact the school.")
+        if (result.error === "pending_approval") {
+          setError("Your account is still pending admin approval. Please contact the school.")
+        } else if (result.error === "no_linked_student") {
+          setError("Your parent account is approved, but no active student is linked yet. Please contact the school office for linking.")
+        } else if (result.error === "inactive_account") {
+          setError("Your account is inactive. Please contact the school.")
         } else if (result.error === "invalid_credentials") {
           setError("Invalid credentials. Please check and try again.")
         } else if (result.error.startsWith("account_locked:")) {

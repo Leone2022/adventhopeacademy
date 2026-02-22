@@ -119,14 +119,16 @@ export const authOptions: NextAuthOptions = {
             throw new Error("invalid_credentials")
           }
 
+          if (user?.status === "PENDING") {
+            throw new Error("pending_approval")
+          }
+
           // Check if parent has at least one approved child
-          if (user?.parentProfile) {
-            const hasApprovedChild = user.parentProfile.students.some(
-              (ps) => ps.student.status === "ACTIVE"
-            )
-            if (!hasApprovedChild) {
-              throw new Error("inactive_account")
-            }
+          const hasApprovedChild = !!user?.parentProfile?.students?.some(
+            (ps) => ps.student.status === "ACTIVE"
+          )
+          if (!hasApprovedChild) {
+            throw new Error("no_linked_student")
           }
         } else {
           // Admin/Staff login with email
@@ -144,10 +146,18 @@ export const authOptions: NextAuthOptions = {
               staffProfile: true,
             },
           })
+
+          if (user && ["PARENT", "STUDENT"].includes(user.role)) {
+            throw new Error("use_portal_login")
+          }
         }
 
         if (!user || !user.isActive) {
           throw new Error("invalid_credentials")
+        }
+
+        if (user.status !== "ACTIVE") {
+          throw new Error("inactive_account")
         }
 
         // Check if account is locked

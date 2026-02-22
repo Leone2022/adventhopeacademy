@@ -47,7 +47,11 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError("Invalid email or password. Please try again.")
+        if (result.error === "use_portal_login") {
+          setError("Parents and students must sign in via the Portal Login page.")
+        } else {
+          setError("Invalid email or password. Please try again.")
+        }
         setLoading(false)
       } else {
         router.push("/dashboard")
