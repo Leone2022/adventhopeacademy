@@ -153,6 +153,14 @@ export async function POST(request: NextRequest) {
         },
       })
 
+      // Create financial account so the student can be bulk-charged immediately
+      await tx.studentAccount.create({
+        data: {
+          studentId: student.id,
+          balance: 0,
+        },
+      })
+
       return { user, student }
     })
 

@@ -243,7 +243,7 @@ export default function BulkChargePage() {
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-6">
           <button
-            onClick={() => setShowResults(false)}
+            onClick={() => { setShowResults(false); fetchData(); }}
             className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== "PARENT") {
+    const allowedRoles = ["PARENT", "SUPER_ADMIN", "SCHOOL_ADMIN"]
+    if (!session || !allowedRoles.includes(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -62,27 +63,42 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== "PARENT") {
+    const allowedRoles = ["PARENT", "SUPER_ADMIN", "SCHOOL_ADMIN"]
+    if (!session || !allowedRoles.includes(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { studentId, lastNameVerification } = body
+    const { studentId, lastNameVerification, parentId: bodyParentId, relationship } = body
 
-    if (!studentId || !lastNameVerification) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    if (!studentId) {
+      return NextResponse.json({ error: "Student ID is required" }, { status: 400 })
     }
 
-    // Get parent profile
-    const parentProfile = await prisma.parent.findUnique({
-      where: { userId: session.user.id },
-    })
+    // Determine parent profile
+    let parentProfile
+    const isAdmin = ["SUPER_ADMIN", "SCHOOL_ADMIN"].includes(session.user.role)
+
+    if (isAdmin && bodyParentId) {
+      // Admin linking on behalf of a parent
+      parentProfile = await prisma.parent.findUnique({
+        where: { id: bodyParentId },
+      })
+    } else {
+      // Parent linking their own child
+      if (!lastNameVerification) {
+        return NextResponse.json({ error: "Last name verification is required" }, { status: 400 })
+      }
+      parentProfile = await prisma.parent.findUnique({
+        where: { userId: session.user.id },
+      })
+    }
 
     if (!parentProfile) {
       return NextResponse.json({ error: "Parent profile not found" }, { status: 404 })
     }
 
-    // Get student and verify last name
+    // Get student
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       select: {
@@ -102,11 +118,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 })
     }
 
-    if (student.lastName.toLowerCase() !== lastNameVerification.toLowerCase()) {
-      return NextResponse.json(
-        { error: "Last name verification failed" },
-        { status: 400 }
-      )
+    // Parents must verify student's last name; admins skip this
+    if (!isAdmin && lastNameVerification) {
+      if (student.lastName.toLowerCase() !== lastNameVerification.toLowerCase()) {
+        return NextResponse.json(
+          { error: "Last name verification failed" },
+          { status: 400 }
+        )
+      }
     }
 
     // Check if already linked
@@ -119,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { error: "This student is already linked to your account" },
+        { error: "This student is already linked to this parent" },
         { status: 400 }
       )
     }
@@ -129,7 +148,7 @@ export async function POST(request: NextRequest) {
       data: {
         parentId: parentProfile.id,
         studentId: studentId,
-        relationship: "Parent",
+        relationship: relationship || "Parent",
         isPrimary: true,
         canPickup: true,
         emergencyContact: false,
@@ -143,6 +162,42 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error linking student:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// Unlink student from parent (admin only)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || !["SUPER_ADMIN", "SCHOOL_ADMIN"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const parentId = searchParams.get("parentId")
+    const studentId = searchParams.get("studentId")
+
+    if (!parentId || !studentId) {
+      return NextResponse.json({ error: "parentId and studentId are required" }, { status: 400 })
+    }
+
+    const link = await prisma.parentStudent.findFirst({
+      where: { parentId, studentId },
+    })
+
+    if (!link) {
+      return NextResponse.json({ error: "Link not found" }, { status: 404 })
+    }
+
+    await prisma.parentStudent.delete({
+      where: { id: link.id },
+    })
+
+    return NextResponse.json({ message: "Student unlinked successfully" })
+  } catch (error) {
+    console.error("Error unlinking student:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
