@@ -176,22 +176,22 @@ export default function PendingRegistrationsClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center space-y-3">
-          <Loader className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
-          <p className="text-slate-200 font-semibold">Loading registrations...</p>
+          <Loader className="w-10 h-10 text-emerald-500 animate-spin mx-auto" />
+          <p className="text-slate-600 font-semibold">Loading registrations...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100">
+    <div className="min-h-screen bg-white text-slate-900">
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-slate-400">Admin</p>
-          <h1 className="text-3xl font-bold text-white">Pending registrations</h1>
-          <p className="text-slate-400 text-sm">Review new parent and student accounts, approve in bulk, or reject with a reason.</p>
+          <p className="text-sm text-slate-500">Admin</p>
+          <h1 className="text-3xl font-bold text-slate-900">Pending registrations</h1>
+          <p className="text-slate-600 text-sm">Review new parent and student accounts, approve in bulk, or reject with a reason.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -200,20 +200,20 @@ export default function PendingRegistrationsClient() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-900/70 border border-slate-800 rounded-xl px-3 py-2 w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400" />
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-500" />
             <input
-              className="bg-transparent focus:outline-none text-sm flex-1"
+              className="bg-transparent focus:outline-none text-sm flex-1 text-slate-900 placeholder-slate-500"
               placeholder="Search by name, email, phone"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-900/70 border border-slate-800 rounded-xl px-3 py-2">
-            <Filter className="w-4 h-4 text-slate-400" />
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+            <Filter className="w-4 h-4 text-slate-500" />
             <select
-              className="bg-transparent focus:outline-none text-sm"
+              className="bg-transparent focus:outline-none text-sm text-slate-900"
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value as "ALL" | "PARENT" | "STUDENT")}
             >
@@ -225,7 +225,7 @@ export default function PendingRegistrationsClient() {
 
           <button
             onClick={toggleSelectAll}
-            className="text-sm px-3 py-2 rounded-xl border border-slate-800 bg-slate-900/70 hover:border-slate-700"
+            className="text-sm px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-slate-300 text-slate-900"
           >
             {selectedIds.size === filteredRegistrations.length ? "Clear selection" : "Select all"}
           </button>
@@ -251,24 +251,24 @@ export default function PendingRegistrationsClient() {
               <EmptyState />
             ) : (
               filteredRegistrations.map((registration) => (
-                <div key={registration.id} className="border border-slate-800 bg-slate-900/70 rounded-2xl p-4 space-y-3 shadow-lg shadow-slate-950/50">
+                <div key={registration.id} className="border border-slate-200 bg-slate-50 rounded-2xl p-4 space-y-3 shadow-lg shadow-slate-100">
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-950"
+                      className="mt-1 h-4 w-4 rounded border-slate-300 bg-white"
                       checked={selectedIds.has(registration.id)}
                       onChange={() => toggleSelect(registration.id)}
                     />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <p className="text-lg font-semibold text-white">{registration.name}</p>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                          <p className="text-lg font-semibold text-slate-900">{registration.name}</p>
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
                             <span>{new Date(registration.createdAt).toLocaleString()}</span>
                             <span className={`px-2 py-0.5 rounded-full border text-xs ${
                               registration.emailVerified
-                                ? "border-emerald-500/50 text-emerald-200 bg-emerald-500/10"
-                                : "border-amber-500/50 text-amber-200 bg-amber-500/10"
+                                ? "border-emerald-300 text-emerald-700 bg-emerald-50"
+                                : "border-amber-300 text-amber-700 bg-amber-50"
                             }`}>
                               {registration.emailVerified ? "Email verified" : "Email pending"}
                             </span>
@@ -276,23 +276,23 @@ export default function PendingRegistrationsClient() {
                         </div>
                         <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                           registration.role === "PARENT"
-                            ? "bg-sky-900/60 text-sky-200 border border-sky-800"
-                            : "bg-emerald-900/60 text-emerald-200 border border-emerald-800"
+                            ? "bg-sky-100 text-sky-700 border border-sky-300"
+                            : "bg-emerald-100 text-emerald-700 border border-emerald-300"
                         }`}>
                           {registration.role}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap gap-3 text-sm text-slate-200">
+                      <div className="flex flex-wrap gap-3 text-sm text-slate-700">
                         <span className="inline-flex items-center gap-2"><Mail className="w-4 h-4" /> {registration.email}</span>
                         <span className="inline-flex items-center gap-2"><Phone className="w-4 h-4" /> {registration.phone}</span>
                       </div>
 
                       {registration.role === "STUDENT" && registration.studentInfo && (
-                        <p className="text-sm text-slate-200">📚 Applying for {registration.studentInfo.gradeApplying}</p>
+                        <p className="text-sm text-slate-700">📚 Applying for {registration.studentInfo.gradeApplying}</p>
                       )}
                       {registration.role === "PARENT" && registration.parentInfo?.applicationNumber && (
-                        <p className="text-sm text-slate-200">🆔 Application {registration.parentInfo.applicationNumber}</p>
+                        <p className="text-sm text-slate-700">🆔 Application {registration.parentInfo.applicationNumber}</p>
                       )}
                     </div>
                   </div>
@@ -320,19 +320,19 @@ export default function PendingRegistrationsClient() {
                   </div>
 
                   {showRejectModal === registration.id && (
-                    <div className="border border-rose-800 bg-rose-950/40 rounded-xl p-3 space-y-3">
-                      <p className="text-sm text-rose-100 font-semibold">Add a rejection reason</p>
+                    <div className="border border-rose-300 bg-rose-50 rounded-xl p-3 space-y-3">
+                      <p className="text-sm text-rose-700 font-semibold">Add a rejection reason</p>
                       <textarea
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                         rows={3}
-                        className="w-full bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/30"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/30"
                         placeholder="Reason..."
                       />
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => setShowRejectModal(null)}
-                          className="px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800"
+                          className="px-3 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
                         >
                           Cancel
                         </button>
@@ -353,26 +353,26 @@ export default function PendingRegistrationsClient() {
         )}
 
         {activeTab === "approved" && (
-          <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-4 shadow-xl shadow-slate-950/50">
-            <div className="flex items-center gap-2 text-slate-200">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4 shadow-xl shadow-slate-100">
+            <div className="flex items-center gap-2 text-slate-700">
               <UserCheck className="w-5 h-5" />
               <p className="font-semibold">Approved parents ({approvedParents.length})</p>
             </div>
 
             {approvedParents.length === 0 ? (
-              <p className="text-slate-400 text-sm">No approved parents yet.</p>
+              <p className="text-slate-500 text-sm">No approved parents yet.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {approvedParents.map((parent) => (
-                  <div key={parent.id} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-2">
+                  <div key={parent.id} className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-400" />
-                      <p className="font-semibold truncate">{parent.name}</p>
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      <p className="font-semibold truncate text-slate-900">{parent.name}</p>
                     </div>
-                    <p className="text-sm text-slate-300 flex items-center gap-2"><Mail className="w-4 h-4" /> {parent.email}</p>
-                    <p className="text-sm text-slate-300 flex items-center gap-2"><Phone className="w-4 h-4" /> {parent.phone}</p>
+                    <p className="text-sm text-slate-700 flex items-center gap-2"><Mail className="w-4 h-4" /> {parent.email}</p>
+                    <p className="text-sm text-slate-700 flex items-center gap-2"><Phone className="w-4 h-4" /> {parent.phone}</p>
                     {parent.parentInfo?.applicationNumber && (
-                      <p className="text-sm text-emerald-300">App #{parent.parentInfo.applicationNumber}</p>
+                      <p className="text-sm text-emerald-600">App #{parent.parentInfo.applicationNumber}</p>
                     )}
                     <p className="text-xs text-slate-500">Approved</p>
                   </div>
@@ -388,10 +388,10 @@ export default function PendingRegistrationsClient() {
 
 function StatCard({ label, value, icon, color }: { label: string; value: number; icon: ReactNode; color: string }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 flex items-center justify-between shadow-lg shadow-slate-950/50">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between shadow-lg shadow-slate-100">
       <div>
-        <p className="text-sm text-slate-400">{label}</p>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-sm text-slate-600">{label}</p>
+        <p className="text-2xl font-bold text-slate-900">{value}</p>
       </div>
       <div className={`p-3 rounded-xl text-white bg-gradient-to-br ${color} shadow-lg shadow-black/30`}>{icon}</div>
     </div>
@@ -404,8 +404,8 @@ function TabButton({ label, active, onClick }: { label: string; active: boolean;
       onClick={onClick}
       className={`px-4 py-2 rounded-xl font-semibold transition border ${
         active
-          ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-900/50"
-          : "bg-slate-900/60 text-slate-200 border-slate-800 hover:border-slate-700"
+          ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-100"
+          : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
       }`}
     >
       {label}
@@ -415,10 +415,10 @@ function TabButton({ label, active, onClick }: { label: string; active: boolean;
 
 function EmptyState() {
   return (
-    <div className="border border-slate-800 bg-slate-900/70 rounded-2xl p-8 text-center space-y-3">
-      <Clock className="w-10 h-10 text-slate-500 mx-auto" />
-      <p className="text-lg font-semibold text-slate-100">No pending registrations</p>
-      <p className="text-slate-400 text-sm">All registrations have been reviewed.</p>
+    <div className="border border-slate-200 bg-slate-50 rounded-2xl p-8 text-center space-y-3">
+      <Clock className="w-10 h-10 text-slate-400 mx-auto" />
+      <p className="text-lg font-semibold text-slate-900">No pending registrations</p>
+      <p className="text-slate-600 text-sm">All registrations have been reviewed.</p>
     </div>
   )
 }
