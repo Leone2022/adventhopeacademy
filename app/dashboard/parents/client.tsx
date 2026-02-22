@@ -41,9 +41,15 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
   const [deletingParentId, setDeletingParentId] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
+    nationalId: "",
+    address: "",
+    city: "",
+    password: "",
+    confirmPassword: "",
   })
 
   const filtered = useMemo(() => {
@@ -76,8 +82,28 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
     e.preventDefault()
     setNotice(null)
 
-    if (!formData.name.trim() || !formData.email.trim()) {
-      setNotice({ type: "error", message: "Name and email are required." })
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.email.trim() ||
+      !formData.phone.trim() ||
+      !formData.nationalId.trim() ||
+      !formData.address.trim() ||
+      !formData.city.trim() ||
+      !formData.password.trim() ||
+      !formData.confirmPassword.trim()
+    ) {
+      setNotice({ type: "error", message: "Please complete all required fields." })
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setNotice({ type: "error", message: "Passwords do not match." })
+      return
+    }
+
+    if (formData.password.length < 8) {
+      setNotice({ type: "error", message: "Password must be at least 8 characters." })
       return
     }
 
@@ -87,9 +113,14 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.name.trim(),
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim(),
+          nationalId: formData.nationalId.trim(),
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          password: formData.password,
         }),
       })
 
@@ -102,8 +133,8 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
       setParentList((prev) => [
         {
           id: data.parentId,
-          applicationNumber: "-",
-          name: formData.name.trim(),
+          applicationNumber: data.applicationNumber || "-",
+          name: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim() || null,
           status: "ACTIVE",
@@ -119,10 +150,20 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
 
       setNotice({
         type: "success",
-        message: `Parent created successfully. Temporary password: ${data.tempPassword}`,
+        message: `Parent created successfully. Application number: ${data.applicationNumber || "N/A"}`,
       })
       setShowAddModal(false)
-      setFormData({ name: "", email: "", phone: "" })
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        nationalId: "",
+        address: "",
+        city: "",
+        password: "",
+        confirmPassword: "",
+      })
     } catch (error) {
       setNotice({ type: "error", message: "Failed to create parent account." })
     } finally {
@@ -375,16 +416,29 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
             </div>
 
             <form onSubmit={handleCreateParent} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Parent full name"
-                  required
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, firstName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="First name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, lastName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Last name"
+                    required
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
@@ -398,14 +452,72 @@ export default function ParentsListClient({ parents }: ParentsListClientProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Phone (Optional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                 <input
                   type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="+263..."
+                  required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">National ID</label>
+                <input
+                  type="text"
+                  value={formData.nationalId}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, nationalId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="63-123456A12"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Street Address</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="123 Main Street"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Harare"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Minimum 8 characters"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Re-enter password"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
